@@ -1,36 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/07/20 09:42:37 by saguesse          #+#    #+#             */
-/*   Updated: 2023/07/26 17:08:58 by saguesse         ###   ########.fr       */
+/*   Created: 2023/07/26 15:40:07 by saguesse          #+#    #+#             */
+/*   Updated: 2023/07/26 17:08:46 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
+#ifndef CLIENT_HPP
+#define CLIENT_HPP
 
+#include <string>
 #include <iostream>
 
-int main(int argc, char** argv)
+class Client
 {
-	if (argc != 3) {
-		std::cout << "Expected: ./ircserv <port> <password>" << std::endl;
-		return (1);
-	}
+	private:
+		int _fd;
+		std::string _nickname;
+		std::string _username;
+		struct pollfd *_pfds;
+		struct hostent *_info;
 
-	Server server(argv[1], argv[2]);
-	try
-	{
-		server.getServerSocket();
-		server.mainLoop();
-	}
-	catch (std::exception &e)
-	{
-		std::cout << e.what() << std::endl;
-	}
+	public:
+		Client();
+		~Client();
 
-	return (0);
-}
+		void setNickname(std::string nickname);
+		std::string getNickname() const;
+		void setUsername(std::string username);
+		std::string getUsername() const;
+
+};
+
+#endif
