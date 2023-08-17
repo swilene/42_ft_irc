@@ -1,19 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Client.cpp                                         :+:      :+:    :+:   */
+/*   Messages.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/08/08 16:56:36 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/16 15:49:14 by saguesse         ###   ########.fr       */
+/*   Created: 2023/08/08 12:03:00 by saguesse          #+#    #+#             */
+/*   Updated: 2023/08/08 12:19:54 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Client.hpp"
+#include "Messages.hpp"
 
-Client::Client() {}
+Messages::Messages() {}
 
-Client::~Client() {}
+Messages::~Messages() {}
 
-pollfd Client::getPfds() { return(pfds); }
+void Messages::sendMsg(std::string msg) const
+{
+	Messages message;
+
+	std::string msgs[1] = {"connection"};
+
+	void (Messages::*m[1])(void) = {&Messages::connectionMsg};
+
+	for (int i = 0; i < 1; i++) {
+		if (msgs[i] == msg)
+			(message.*m[i])();
+	}
+}
+
+void Messages::connectionMsg()
+{
+	//msg 01 a 04
+}

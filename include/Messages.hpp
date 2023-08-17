@@ -1,19 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Client.cpp                                         :+:      :+:    :+:   */
+/*   Messages.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/08/08 16:56:36 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/16 15:49:14 by saguesse         ###   ########.fr       */
+/*   Created: 2023/08/08 12:08:18 by saguesse          #+#    #+#             */
+/*   Updated: 2023/08/08 12:16:20 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Client.hpp"
+#ifndef MESSAGES_HPP
+#define MESSAGES_HPP
 
-Client::Client() {}
+#include <iostream>
+#include <string>
 
-Client::~Client() {}
+//cpp01 ex05
 
-pollfd Client::getPfds() { return(pfds); }
+class Messages
+{
+	private:
+		void connectionMsg() const;
+
+	public:
+		Messages();
+		~Messages();
+
+		void sendMsg(std::string msg) const;
+};
+
+#endif
