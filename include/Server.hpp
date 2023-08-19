@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 14:28:56 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/17 17:18:32 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/08/19 15:42:49 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@
 #include <netdb.h>
 #include <poll.h>
 #include <unistd.h>
+#include <signal.h>
 
 #define PORT "6667"
 #define BACKLOG 10

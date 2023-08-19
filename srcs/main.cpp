@@ -6,13 +6,21 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 14:41:33 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/09 17:10:39 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/08/19 16:10:07 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
 #include <iostream>
+
+bool exitServer = false;
+
+void handleSignals(int signal)
+{
+	if (signal == SIGINT)
+		exitServer = true;
+}
 
 int main(int argc, char **argv)
 {
@@ -24,6 +32,8 @@ int main(int argc, char **argv)
 	std::cout << "port: " << argv[1] << ", pswd: " << argv[2] << std::endl;
 
 	Server server;
+
+	signal(SIGINT, handleSignals);
 
 	try
 	{

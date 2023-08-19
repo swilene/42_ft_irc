@@ -6,12 +6,14 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 14:30:00 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/17 17:21:51 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/08/19 16:51:34 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include "Client.hpp"
+
+extern bool exitServer;
 
 Server::Server() {}
 
@@ -49,7 +51,7 @@ void Server::mainLoop()
 	_pollfdServer.events = POLLIN;
 	_pollfdClients.push_back(_pollfdServer);
 
-	while (1) {
+	while (exitServer == false) {
 		if (poll((pollfd *)&_pollfdClients[0], _pollfdClients.size(), -1) < 0)
 			throw pollException();
 		//run through the existing connections looking for data to read
@@ -98,6 +100,6 @@ void Server::clientAlreadyExists(int fd) const
 
 void Server::handlePollout(int fd) const
 {
-	if (send(fd, "connected", 10, 0) < 0)
+	if (send(fd, "", 0, 0) < 0)
 		std::cout << "Error send()" << std::endl;
 }
