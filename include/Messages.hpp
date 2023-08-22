@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 12:08:18 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/08 12:16:20 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/08/22 16:08:39 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 
 #include <iostream>
 #include <string>
+
+//#define WELCOME(nick, user, host) ("Welcome to the ft_irc Network, " + nick + "[!" + user + "@" + host + "]") 
+#define WELCOME "Welcome to the ft_irc Network, solene[!solene@localhost]" 
 
 //cpp01 ex05
 
@@ -27,7 +30,7 @@ class Messages
 		Messages();
 		~Messages();
 
-		void sendMsg(std::string msg) const;
+		std::string welcomeRPL();
 };
 
 #endif

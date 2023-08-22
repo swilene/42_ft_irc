@@ -1,0 +1,93 @@
+<< CAP LS 302
+<< JOIN :
+>> :lion.tx.us.dal.net NOTICE AUTH :*** Looking up your hostname...
+>> :lion.tx.us.dal.net NOTICE AUTH :*** Checking Ident
+>> :lion.tx.us.dal.net NOTICE AUTH :*** Found your hostname
+>> :lion.tx.us.dal.net NOTICE AUTH :*** No Ident response
+>> :lion.tx.us.dal.net 451 * JOIN :You must finish connecting with another nickname first.
+<< NICK solene
+<< USER solene solene irc.dal.net :Solene
+>> :lion.tx.us.dal.net 001 solene :Welcome to the DALnet IRC Network solene!~solene@77.151.2.230
+<< MODE solene +i
+>> :lion.tx.us.dal.net 002 solene :Your host is lion.tx.us.dal.net, running version bahamut-2.2.2
+>> :lion.tx.us.dal.net 003 solene :This server was created Tue Jun 20 2023 at 12:59:13 EDT
+>> :lion.tx.us.dal.net 004 solene lion.tx.us.dal.net bahamut-2.2.2 aAbcCdefFghHiIjkKmnoOPrRsSwxXy AbceiIjklLmMnoOpPrRsStv beIjklov
+>> :lion.tx.us.dal.net 005 solene NETWORK=DALnet SAFELIST MAXBANS=200 MAXCHANNELS=50 CHANNELLEN=32 KICKLEN=307 NICKLEN=30 TOPICLEN=307 MODES=6 CHANTYPES=# CHANLIMIT=#:50 PREFIX=(ohv)@%+ STATUSMSG=@%+ :are available on this server
+>> :lion.tx.us.dal.net 005 solene CASEMAPPING=ascii WATCH=128 SILENCE=10 ELIST=cmntu EXCEPTS INVEX CHANMODES=beI,k,jl,ciPAmMnOprRsSt MAXLIST=b:200,e:100,I:100 TARGMAX=DCCALLOW:,JOIN:,KICK:4,KILL:20,NOTICE:20,PART:,PRIVMSG:20,WHOIS:,WHOWAS: :are available on this server
+>> :lion.tx.us.dal.net 251 solene :There are 74 users and 7327 invisible on 38 servers
+>> :lion.tx.us.dal.net 252 solene 72 :IRC Operators online
+>> :lion.tx.us.dal.net 254 solene 3838 :channels formed
+>> :lion.tx.us.dal.net 255 solene :I have 571 clients and 1 servers
+>> :lion.tx.us.dal.net 265 solene :Current local users: 571 Max: 1222
+>> :lion.tx.us.dal.net 266 solene :Current global users: 7401 Max: 8005
+>> :lion.tx.us.dal.net NOTICE solene :*** Notice -- motd was last changed at 20/6/2023 12:53
+>> :lion.tx.us.dal.net 375 solene :- lion.tx.us.dal.net Message of the Day - 
+>> :lion.tx.us.dal.net 372 solene :-20/6/2023 12:53
+>> :lion.tx.us.dal.net 372 solene :-      Welcome to,
+>> :lion.tx.us.dal.net 372 solene :-       _ _
+>> :lion.tx.us.dal.net 372 solene :-      | (_)            
+>> :lion.tx.us.dal.net 372 solene :-      | |_  ___  _ __  
+>> :lion.tx.us.dal.net 372 solene :-      | | |/ _ \| '_ \ 
+>> :lion.tx.us.dal.net 372 solene :-      | | | (_) | | | |
+>> :lion.tx.us.dal.net 372 solene :-      |_|_|\___/|_| |_|.tx.us.dal.net 
+>> :lion.tx.us.dal.net 372 solene :- 
+>> :lion.tx.us.dal.net 372 solene :-       * Host..............: lion.dal.net | lion-v6.dal.net
+>> :lion.tx.us.dal.net 372 solene :-       * Ports.............: 6667 - 6669, 7000 | SSL - 6697
+>> :lion.tx.us.dal.net 372 solene :- 
+>> :lion.tx.us.dal.net 372 solene :-    Welcome to DALnet, by connecting to this network you agree to 
+>> :lion.tx.us.dal.net 372 solene :-    abide by its acceptable use policy, visit : http://www.dal.net/aup
+>> :lion.tx.us.dal.net 372 solene :- 
+>> :lion.tx.us.dal.net 372 solene :-      "This server has been sponsored by Psychz Networks"
+>> :lion.tx.us.dal.net 372 solene :- 
+>> :lion.tx.us.dal.net 372 solene :-            ---===[https://www.psychz.net/]===---
+>> :lion.tx.us.dal.net 372 solene :- 
+>> :lion.tx.us.dal.net 372 solene :-    -------------------------------------------------------------------
+>> :lion.tx.us.dal.net 372 solene :-    [%] Server Staff  =-  
+>> :lion.tx.us.dal.net 372 solene :- 
+>> :lion.tx.us.dal.net 372 solene :-    .::. Administrator....:
+>> :lion.tx.us.dal.net 372 solene :-                           sps
+>> :lion.tx.us.dal.net 372 solene :-       
+>> :lion.tx.us.dal.net 372 solene :-    .::. Operators........: 
+>> :lion.tx.us.dal.net 372 solene :-                           eddyk0ng
+>> :lion.tx.us.dal.net 372 solene :-                           Nando
+>> :lion.tx.us.dal.net 372 solene :-                           RallyMaster
+>> :lion.tx.us.dal.net 372 solene :-                           Wagoo
+>> :lion.tx.us.dal.net 372 solene :-                           Wheemp
+>> :lion.tx.us.dal.net 372 solene :-    -------------------------------------------------------------------
+>> :lion.tx.us.dal.net 372 solene :-    [%] Server Policies  =-
+>> :lion.tx.us.dal.net 372 solene :- 
+>> :lion.tx.us.dal.net 372 solene :-    a. No spamming or advertising allowed, if found you will be banned 
+>> :lion.tx.us.dal.net 372 solene :-       from this server/network.
+>> :lion.tx.us.dal.net 372 solene :-    b. No malicious bots, including flood and nick/channel chasers
+>> :lion.tx.us.dal.net 372 solene :-    c. No channel filler bots/clients/psybncs
+>> :lion.tx.us.dal.net 372 solene :-       #  A channel filler is a client, bnc, or bot which is connected
+>> :lion.tx.us.dal.net 372 solene :-          just to fill a channel and make it look bigger
+>> :lion.tx.us.dal.net 372 solene :-    d. Operator impersonation will not be tolerated and cause you to be
+>> :lion.tx.us.dal.net 372 solene :-       banned from this server/network.
+>> :lion.tx.us.dal.net 372 solene :- 
+>> :lion.tx.us.dal.net 372 solene :-            "REMEMBER IRC IS A PRIVILEGE, NOT A RIGHT"
+>> :lion.tx.us.dal.net 372 solene :-    --------------------------------------------------------------------
+>> :lion.tx.us.dal.net 372 solene :-    For IRC Operator assistance /join #Operhelp
+>> :lion.tx.us.dal.net 372 solene :- 
+>> :lion.tx.us.dal.net 372 solene :-    For DALnet and General IRC related help, goto #Help
+>> :lion.tx.us.dal.net 372 solene :- 
+>> :lion.tx.us.dal.net 372 solene :-    For multi-lingual documentation - [http://docs.dal.net]
+>> :lion.tx.us.dal.net 372 solene :- 
+>> :lion.tx.us.dal.net 372 solene :-    If you have any questions/issues related to this server,           
+>> :lion.tx.us.dal.net 372 solene :-    contact us using: lion-staff@dal.net
+>> :lion.tx.us.dal.net 372 solene :- 
+>> :lion.tx.us.dal.net 372 solene :-    Thank you, hope you enjoy your stay!
+>> :lion.tx.us.dal.net 372 solene :- 
+>> :lion.tx.us.dal.net 376 solene :End of /MOTD command.
+>> :solene MODE solene :+iH
+<< PING lion.tx.us.dal.net
+>> :lion.tx.us.dal.net PONG lion.tx.us.dal.net :solene
+--> lag pong
+<< userhost
+>> :lion.tx.us.dal.net 302 solene :
+<< userhost
+>> :lion.tx.us.dal.net 302 solene :
+<< PING lion.tx.us.dal.net
+>> :lion.tx.us.dal.net PONG lion.tx.us.dal.net :solene
+--> lag pong
+<< QUIT :leaving

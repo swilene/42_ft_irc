@@ -6,16 +6,35 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 14:30:00 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/19 16:51:34 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/08/22 17:28:34 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
-#include "Client.hpp"
 
 extern bool exitServer;
 
-Server::Server() {}
+Server::Server(std::string port, std::string password) : _port(port), _password(password)
+{
+	std::ifstream file;
+	std::string line;
+	size_t pos;
+
+	file.open("user_config");
+	if (file.is_open()) {
+		while (std::getline(file, line)) {
+			pos = line.find(" ");
+			_user = line.substr(0, pos);
+			line.erase(0, pos + 1);
+			pos = line.find(" ");
+			_host = line.substr(0, pos);
+			_userPassword = line.substr(pos + 1);
+		}
+		file.close();
+	}
+	else
+		throw openException();
+}
 
 Server::~Server() {}
 
@@ -27,7 +46,7 @@ void Server::getListenerSocket()
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
-	if (getaddrinfo(NULL, PORT, &hints, &ai) < 0)
+	if (getaddrinfo(NULL, _port.c_str(), &hints, &ai) < 0)
 		throw getaddrinfoException();
 
 	_listener = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
@@ -67,7 +86,7 @@ void Server::mainLoop()
 				}
 			}
 			else if (it->revents & POLLOUT) {
-				handlePollout(it->fd);
+				handlePollout(it);
 				break;
 			}
 			//else if (it->revents & POLLERR)
@@ -98,8 +117,11 @@ void Server::clientAlreadyExists(int fd) const
 		std::cout << "Error recv()" << std::endl;
 }
 
-void Server::handlePollout(int fd) const
+void Server::handlePollout(std::vector<pollfd>::iterator it)
 {
-	if (send(fd, "", 0, 0) < 0)
+	// vector de clients avec un pollfd et un int pour verifier si les messages de welcome ont ete envoye
+	if (send(it->fd, WELCOME, _msg.welcomeRPL().size(), 0) < 0)
+		std::cout << "error welcome msg" << std::endl;
+	if (send(it->fd, "", 0, 0) < 0)
 		std::cout << "Error send()" << std::endl;
 }
