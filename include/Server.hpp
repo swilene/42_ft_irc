@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 14:28:56 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/22 17:26:42 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/08/23 17:22:41 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 #include <fstream>
 
 #include <cstring>
+#include <ctime>
 #include <cstdlib>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -33,6 +34,7 @@
 #define BACKLOG 10
 
 class Client;
+class Messages;
 
 class Server
 {
@@ -48,22 +50,26 @@ class Server
 		std::vector<pollfd> _pollfdClients;
 		std::vector<pollfd> _pollfdNew;
 		pollfd _pollfdServer;
+
 		int _listener, _newfd;
 		addrinfo hints, *ai;
 		socklen_t _addrlen;
 		sockaddr_storage _remoteaddr;
 		
-		Messages _msg;
+		Messages _msg();
+		std::string _RPLToSend;
 
 	public:
 		Server(std::string port, std::string password);
 		~Server();
 
+		std::string getRPLToSend() const;
 		void getListenerSocket();
+
 		void mainLoop();
 		void newClient();
 		void clientAlreadyExists(int fd) const;
-		void handlePollout(std::vector<pollfd>::iterator it);
+		void handlePollout(int fd);
 		//void handlePollin();
 
 		class openException : public std::exception

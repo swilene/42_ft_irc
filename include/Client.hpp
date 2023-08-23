@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 15:00:31 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/15 17:21:31 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/08/23 11:14:11 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,19 +21,16 @@ class Client
 {
 	private:
 		std::string _username, _nickname;
-		pollfd pfds;
+		int _fd;
+		bool _welcomeSent;
 
 	public:
-		Client();
+		Client(int fd);
 		~Client();
 
-		/*void setFd(int fd);
-		void setEvents(short events);
-
 		int getFd() const;
-		short getEvents() const;
-		short getRevents() const;*/
-		pollfd  getPfds();
+		bool getWelcomeSent() const;
+		void setWelcomeSent();
 };
 
 #endif

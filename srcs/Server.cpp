@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 14:30:00 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/22 17:28:34 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/08/23 16:57:09 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,8 @@ Server::Server(std::string port, std::string password) : _port(port), _password(
 }
 
 Server::~Server() {}
+
+std::string Server::getRPLToSend() const { return(_RPLToSend); }
 
 void Server::getListenerSocket()
 {
@@ -76,19 +78,13 @@ void Server::mainLoop()
 		//run through the existing connections looking for data to read
 		for (std::vector<pollfd>::iterator it = _pollfdClients.begin(); it != _pollfdClients.end(); it++) {
 			if (it->revents & POLLIN) {
-				if (it->fd == _listener) {
+				if (it->fd == _listener)
 					newClient();
-					continue;
-				}
-				else {
+				else
 					clientAlreadyExists(it->fd);
-					break;
-				}
 			}
-			else if (it->revents & POLLOUT) {
-				handlePollout(it);
-				break;
-			}
+			else if (it->revents & POLLOUT)
+				handlePollout(it->fd);
 			//else if (it->revents & POLLERR)
 		}
 		_pollfdClients.insert(_pollfdClients.end(), _pollfdNew.begin(), _pollfdNew.end());
@@ -102,10 +98,15 @@ void Server::newClient()
 	_newfd = accept(_listener, (sockaddr *)&_remoteaddr, &_addrlen);
 	if (_newfd < 0)
 		throw acceptException();
-	pollfd newClient;
-	newClient.fd = _newfd;
-	newClient.events = POLLIN | POLLOUT;
-	_pollfdNew.push_back(newClient);
+	
+	pollfd newPollfd;
+	newPollfd.fd = _newfd;
+	newPollfd.events = POLLIN | POLLOUT;
+	_pollfdNew.push_back(newPollfd);
+	
+	Client *newClient = new Client(_newfd);
+	_clients.push_back(newClient);
+
 	std::cout << "pollserver: new connection on socket " << _newfd << std::endl;
 }
 
@@ -117,11 +118,17 @@ void Server::clientAlreadyExists(int fd) const
 		std::cout << "Error recv()" << std::endl;
 }
 
-void Server::handlePollout(std::vector<pollfd>::iterator it)
+void Server::handlePollout(int fd)
 {
-	// vector de clients avec un pollfd et un int pour verifier si les messages de welcome ont ete envoye
-	if (send(it->fd, WELCOME, _msg.welcomeRPL().size(), 0) < 0)
-		std::cout << "error welcome msg" << std::endl;
-	if (send(it->fd, "", 0, 0) < 0)
-		std::cout << "Error send()" << std::endl;
+	for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++) { 
+		if ((*it)->getFd() == fd) {
+			_msg.sendMsg(_RPLToSend, it);
+			/*msg = WELCOME;
+			if (send(fd, msg.c_str(), msg.size(), 0) < 0)
+				std::cout << "error welcome msg" << std::endl;
+			msg = 
+			send(fd, msg)
+			(*it)->setWelcomeSent();*/
+		}
+	}
 }
