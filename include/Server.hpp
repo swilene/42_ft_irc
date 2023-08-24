@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 14:28:56 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/23 17:22:41 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/08/24 15:35:33 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@
 #include <fstream>
 
 #include <cstring>
-#include <ctime>
 #include <cstdlib>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -32,9 +31,6 @@
 #include <signal.h>
 
 #define BACKLOG 10
-
-class Client;
-class Messages;
 
 class Server
 {
@@ -56,7 +52,7 @@ class Server
 		socklen_t _addrlen;
 		sockaddr_storage _remoteaddr;
 		
-		Messages _msg();
+		Messages _msg;
 		std::string _RPLToSend;
 
 	public:

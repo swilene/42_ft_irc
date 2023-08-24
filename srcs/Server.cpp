@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 14:30:00 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/23 16:57:09 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/08/24 17:03:24 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,9 @@ void Server::mainLoop()
 		_pollfdClients.insert(_pollfdClients.end(), _pollfdNew.begin(), _pollfdNew.end());
 		_pollfdNew.clear();
 	}
+	for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+		delete *it;
+	_clients.clear();
 }
 
 void Server::newClient()
@@ -106,6 +109,7 @@ void Server::newClient()
 	
 	Client *newClient = new Client(_newfd);
 	_clients.push_back(newClient);
+	_RPLToSend = "register";
 
 	std::cout << "pollserver: new connection on socket " << _newfd << std::endl;
 }
@@ -123,12 +127,7 @@ void Server::handlePollout(int fd)
 	for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++) { 
 		if ((*it)->getFd() == fd) {
 			_msg.sendMsg(_RPLToSend, it);
-			/*msg = WELCOME;
-			if (send(fd, msg.c_str(), msg.size(), 0) < 0)
-				std::cout << "error welcome msg" << std::endl;
-			msg = 
-			send(fd, msg)
-			(*it)->setWelcomeSent();*/
+			_RPLToSend.clear();
 		}
 	}
 }

@@ -6,7 +6,7 @@
 #    By: saguesse <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/07/20 09:39:18 by saguesse          #+#    #+#              #
-#    Updated: 2023/08/22 15:51:43 by saguesse         ###   ########.fr        #
+#    Updated: 2023/08/24 14:32:30 by saguesse         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,6 +25,7 @@ SRC_FILES = main.cpp \
 			Server.cpp \
 			Client.cpp \
 			Messages.cpp
+
 SRC = $(SRC_FILES:%=$(SRC_DIR)/%)
 
 OBJ_DIR = objs

@@ -6,28 +6,40 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 12:08:18 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/23 17:19:37 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/08/24 17:25:14 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MESSAGES_HPP
 #define MESSAGES_HPP
 
-#include "Server.hpp"
+#include "Client.hpp"
 
 #include <iostream>
 #include <string>
+#include <vector>
+
+#include <ctime>
+#include <sys/types.h>
+#include <sys/socket.h>
 
 //#define WELCOME(nick, user, host) ("Welcome to the ft_irc Network, " + nick + "[!" + user + "@" + host + "]") 
-#define WELCOME "Welcome to the Internet Relay Chat Network, solene[!solene@localhost]\r\n" 
-#define YOURHOST "Your host is 42_ft_irc, running version 1.1\r\n"
-#define CREATED "This server was created"
+#define WELCOME "Welcome to the Internet Relay Network, solene!solene@localhost\r\n" 
+#define YOURHOST(servername, version) ("Your host is 42_ft_irc (" + servername + ") running version " + version + "\r\n")
+#define CREATED(time) ("This server was created " + time + "\r\n")
+#define MYINFO(servername, version) (servername + " " + version + " io itkol\r\n")
+#define ISUPPORT "CHANNELLEN=32 NICKLEN=9 TOPICLEN=307 are supported by this server\r\n"
 
 //cpp01 ex05
+
+class Server;
 
 class Messages
 {
 	private:
+		std::string _rpl, _servername, _version;
+		time_t _start;
+		tm *_now;
 
 	public:
 		Messages();

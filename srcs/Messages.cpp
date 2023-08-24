@@ -6,13 +6,16 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 12:03:00 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/23 17:23:48 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/08/24 17:22:51 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Messages.hpp"
 
-Messages::Messages() {}
+Messages::Messages() : _servername("localhost"), _version("1.1")
+{
+	_start = time(NULL);
+}
 
 Messages::~Messages() {}
 
@@ -32,6 +35,18 @@ void Messages::sendMsg(std::string msg, std::vector<Client *>::iterator client)
 
 void Messages::registerMsg(std::vector<Client *>::iterator client)
 {
-	//send()
-	std::cout << (*client)->getFd() << std::endl;
+	_rpl = WELCOME;
+	send((*client)->getFd(), _rpl.c_str(), _rpl.size(), 0);
+	_rpl = YOURHOST(_servername, _version);
+	send((*client)->getFd(), _rpl.c_str(), _rpl.size(), 0);
+
+	_now = localtime(&_start);
+	char time[20];
+	strftime(time, sizeof(time), "%m-%d-%Y %X", _now);
+	_rpl = CREATED(static_cast<std::string>(time));
+	send((*client)->getFd(), _rpl.c_str(), _rpl.size(), 0);
+	_rpl = MYINFO(_servername, _version);
+	send((*client)->getFd(), _rpl.c_str(), _rpl.size(), 0);
+	_rpl = ISUPPORT;
+	send((*client)->getFd(), _rpl.c_str(), _rpl.size(), 0);
 }
