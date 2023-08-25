@@ -5,45 +5,46 @@
 #                                                     +:+ +:+         +:+      #
 #    By: saguesse <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2023/07/20 09:39:18 by saguesse          #+#    #+#              #
-#    Updated: 2023/08/24 14:32:30 by saguesse         ###   ########.fr        #
+#    Created: 2023/08/25 12:13:17 by saguesse          #+#    #+#              #
+#    Updated: 2023/08/25 14:39:55 by saguesse         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = ircserv
+
 CXX = c++
 CXXFLAGS = -Wall -Werror -Wextra -std=c++98 -g3
+
 RM = rm -rf
 
-INC = -I include
-HEADER = include/Server.hpp \
-		 include/Client.hpp \
-		 include/Messages.hpp
+HEADER_DIR = -I include
+HEADER_FILES = include/Server.hpp \
+			   include/Client.hpp \
+			   include/Messages.hpp
 
-SRC_DIR = srcs
-SRC_FILES = main.cpp \
-			Server.cpp \
-			Client.cpp \
-			Messages.cpp
+SRCS_DIR = srcs
+SRCS_FILES = main.cpp \
+			 Server.cpp \
+			 Client.cpp \
+			 Messages.cpp
+SRCS = $(SRCS_FILES:%=$(SRCS_DIR)/%)
 
-SRC = $(SRC_FILES:%=$(SRC_DIR)/%)
+OBJS_DIR = objs
+OBJS = $(SRCS:$(SRCS_DIR)/.cpp=$(OBJS_DIR)/.o)
 
-OBJ_DIR = objs
-OBJ = $(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o) $(HEADER)
+$(OBJS_DIR)%.o : $(SRCS_DIR)/%.cpp $(HEADER_FILES)
+	$(CXX) -c $(CXXFLAGS) $< -o $@
 
-$(NAME): $(OBJ_DIR) $(OBJ)
-	$(CXX) $(OBJ) -o $(NAME) $(HEADER) $(INC)
+$(NAME): $(OBJS_DIR) $(OBJS) $(HEADER_FILES)
+	$(CXX) -o $(NAME) $(CXXFLAGS) $(OBJS) $(HEADER_DIR)
 
-$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@ $(INC)
-
-$(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
+$(OBJS_DIR):
+	mkdir -p $(OBJS_DIR)
 
 all: $(NAME)
 
 clean:
-	$(RM) $(OBJ_DIR)
+	$(RM) $(OBJS_DIR)
 
 fclean: clean
 	$(RM) $(NAME)
