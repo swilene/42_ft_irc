@@ -19,14 +19,8 @@
 #define MYINFO(servername, version) ("Irssi " + servername + " " + version + " io itkol\r\n")
 #define ISUPPORT "Irssi CHANNELLEN=32 NICKLEN=9 TOPICLEN=307 :are supported by this server\r\n"
 
-void sendNumericReply(int clientSocket, int numericCode, const std::string& message) {
-    std::string reply = ":" + std::string("your_server_name") + " "
-		+ std::to_string(numericCode) + " " + message + "\r\n";
-    send(clientSocket, reply.c_str(), reply.length(), 0);
-}
 
-
-void	rpl1_4(int clientSocket)
+void	rpl_welcome(int clientSocket)
 {
 	sleep(1);
 	char buf[3000];
@@ -61,6 +55,7 @@ void	rpl1_4(int clientSocket)
 	std::string reply = ":" + std::string("127.0.0.1") + " 001 " + nick + " Welcome to the Internet Relay Network "
 		+ nick + "!" + user + "@127.0.0.1" + "\r\n";
 	send(clientSocket, reply.c_str(), reply.size(), 0);
+	std::cout << "[REPLY] " << reply << std::endl;
 	//// useless
 	// std::string msg = WELCOME(networkname, nick);
 	// send(clientSocket, msg.c_str(), msg.size(), 0);
@@ -73,6 +68,15 @@ void	rpl1_4(int clientSocket)
 	// msg = ISUPPORT;
 	// send(clientSocket, msg.c_str(), msg.size(), 0);
 	// send(clientSocket, "motd\r\n", 6, 0);
+}
+
+void	ping(int clientSocket, std::string ping)
+{
+	std::string	pong = "PONG ";
+	std::string	server = ping.substr(ping.find("PING ", 0) + 5, ping.find("\r\n", 0));
+	pong += server + "\r\n";
+
+	send(clientSocket, pong.c_str(), pong.size(), 0);
 }
 
 
@@ -131,7 +135,7 @@ int main(void)
 				clientSockets.push_back(clientSocket);
 
 				// SEND RPL 1-4 ?
-				rpl1_4(clientSocket);
+				rpl_welcome(clientSocket);
 			}
 		}
 
@@ -142,7 +146,7 @@ int main(void)
                 ssize_t recvd = recv(pollfds[i].fd, buf, sizeof(buf) - 1, 0);
 
                 if (recvd > 0) {
-					// check for /r/n
+					// check for /r/n here!!
                     buf[recvd] = '\0';
                     std::cout << "Client n" << i << ": " << buf << "[" << recvd << "]" << std::endl;
 					// send to other clients
@@ -158,7 +162,7 @@ int main(void)
 					// PONG (fonctionnel)
 					std::string msg = buf;
 					if (msg.find("PING", 0) != std::string::npos) {
-						send(clientSockets[i - 1], "PONG 127.0.0.1\r\n", 16, 0);
+						ping(clientSockets[i - 1], msg);
 						std::cout << "sent pong to n" << i << std::endl;
 					}
                 } else if (recvd == 0) {
@@ -188,22 +192,14 @@ int main(void)
 }
 
 
-	//// SOLO CLIENT
-	// int clientSocket = accept(listenSocket, (struct sockaddr *)&servAddress, &servAddressLen);
-	// // CONNECT A CLIENT
-	// while (1) {
-	// 	// sleep(1);
-	// 	char buf[3000];
-    //     ssize_t recvd = recv(clientSocket, buf, sizeof(buf) - 1, 0);
+/*
 
-    //     if (recvd > 0) {
-    //         buf[recvd] = '\0';
-    //         std::cout << buf << "(" << recvd << ")" << std::endl;
-    //     } else if (recvd == 0) {
-    //         std::cout << "client disconnected" << std::endl;
-    //         break;
-    //     } else {
-    //         std::cout << "recv() failed" << std::endl;
-    //         break;
-    //     }
-	// }
+Chaque client:
+- fd
+- pollfd
+- nick / user / realname
+- role (user ou operator)
+- channels dont membre (vector<string> ?)
+
+
+*/
