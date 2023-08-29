@@ -13,46 +13,11 @@
 #include "Client.hpp"
 #include <cctype>
 
-Client::Client(int fd) : _fd(fd), _operator(false), _welcomeSent(false) {}
+Client::Client(int fd) : _fd(fd), _welcomeSent(false) {}
 
-Client::~Client() {}  // close(_fd) ?
+Client::~Client() {}
 
 int		Client::getFd() const { return(_fd); }
 
-bool	Client::getOperator() const { return(_operator); }
-
 bool	Client::getWelcomeSent() const { return(_welcomeSent); }
 void	Client::setWelcomeSent() { _welcomeSent = true; }
-
-void	Client::addChannel(std::string channel)
-{
-	// message deja parse ?
-	for (size_t i = 0; i < channel.size(); i++)
-		channel[i] = tolower(channel[i]);
-	_channels.push_back(channel);
-}
-
-void	Client::rmChannel(std::string channel)
-{
-	for (size_t i = 0; i < channel.size(); i++)
-		channel[i] = tolower(channel[i]);
-	
-	for (size_t i = 0; i < _channels.size(); i++) {
-		if (_channels[i] == channel) {
-			_channels.erase(_channels.begin() + i);
-			return;  //peut avoir doublons ?
-		}
-	}
-}
-
-bool	Client::isMember(std::string channel) const
-{
-	for (size_t i = 0; i < channel.size(); i++)
-		channel[i] = tolower(channel[i]); // case insensitive
-
-	for (size_t i = 0; i < _channels.size(); i++) {
-		if (_channels[i] == channel)
-			return true;
-	}
-	return false;
-}
