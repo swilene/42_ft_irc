@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 14:28:56 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/24 15:35:33 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/08/28 15:11:38 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,15 +64,9 @@ class Server
 
 		void mainLoop();
 		void newClient();
-		void clientAlreadyExists(int fd) const;
+		void clientAlreadyExists(int fd);
 		void handlePollout(int fd);
 		//void handlePollin();
-
-		class openException : public std::exception
-		{
-			public:
-				const char* what() const throw() { return("Error open() user_config"); }
-		};
 
 		class getaddrinfoException : public std::exception
 		{
@@ -83,7 +77,25 @@ class Server
 		class socketException : public std::exception
 		{
 			public:
-				const char* what() const throw() { return("Error getting listening socket"); }
+				const char* what() const throw() { return("Error socket()"); }
+		};
+
+		class setsockoptException : public std::exception
+		{
+			public:
+				const char* what() const throw() { return("Error setsockopt()"); }
+		};
+
+		class bindException : public std::exception
+		{
+			public:
+				const char* what() const throw() { return("Error bind()"); }
+		};
+
+		class listenException : public std::exception
+		{
+			public:
+				const char* what() const throw() { return("Error listen()"); }
 		};
 
 		class acceptException : public std::exception

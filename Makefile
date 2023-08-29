@@ -6,7 +6,7 @@
 #    By: saguesse <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/25 12:13:17 by saguesse          #+#    #+#              #
-#    Updated: 2023/08/25 14:39:55 by saguesse         ###   ########.fr        #
+#    Updated: 2023/08/29 19:40:29 by saguesse         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,13 +20,15 @@ RM = rm -rf
 HEADER_DIR = -I include
 HEADER_FILES = include/Server.hpp \
 			   include/Client.hpp \
-			   include/Messages.hpp
+			   include/Messages.hpp \
+			   include/Channel.hpp
 
 SRCS_DIR = srcs
 SRCS_FILES = main.cpp \
 			 Server.cpp \
 			 Client.cpp \
-			 Messages.cpp
+			 Messages.cpp \
+			 Channel.cpp
 SRCS = $(SRCS_FILES:%=$(SRCS_DIR)/%)
 
 OBJS_DIR = objs

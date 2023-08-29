@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 14:41:33 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/25 12:53:36 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/08/29 15:29:35 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,10 +30,11 @@ int main(int argc, char **argv)
 	}
 
 	signal(SIGINT, handleSignals);
+	
+	Server server(argv[1], argv[2]);
 
 	try
 	{
-		Server server(argv[1], argv[2]);
 		server.getListenerSocket();
 		server.mainLoop();
 	}

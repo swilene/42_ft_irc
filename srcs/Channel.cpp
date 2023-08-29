@@ -23,7 +23,7 @@ bool		Channel::getTopicRights() const { return _topicRights; }
 void		Channel::setTopicRights(bool mode) { _topicRights = mode; }
 
 std::string	Channel::getPassword() const { return _password; }
-void		Channel::setPassword(std::string password) { _passwor = password; }
+void		Channel::setPassword(std::string password) { _password = password; }
 
 int			Channel::getUserLimit() const { return _userLimit; }
 void		Channel::setUserLimit(int limit) { _userLimit = limit; }

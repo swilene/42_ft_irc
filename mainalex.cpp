@@ -162,6 +162,7 @@ int main(void)
 					// PONG (fonctionnel)
 					std::string msg = buf;
 					if (msg.find("PING", 0) != std::string::npos) {
+						std::cout << "debug: " << clientSockets[i - 1] << std::endl;
 						ping(clientSockets[i - 1], msg);
 						std::cout << "sent pong to n" << i << std::endl;
 					}

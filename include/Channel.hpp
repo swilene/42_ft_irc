@@ -42,6 +42,7 @@ class Channel {
 
 };
 
+#endif
 
 // MODES
 // -i  :  bool

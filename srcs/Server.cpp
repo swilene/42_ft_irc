@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 14:30:00 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/25 12:53:22 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/08/29 19:34:00 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,27 +14,7 @@
 
 extern bool exitServer;
 
-Server::Server(std::string port, std::string password) : _port(port), _password(password)
-{
-	std::ifstream file;
-	std::string line;
-	size_t pos;
-
-	file.open("user_config");
-	if (file.is_open()) {
-		while (std::getline(file, line)) {
-			pos = line.find(" ");
-			_user = line.substr(0, pos);
-			line.erase(0, pos + 1);
-			pos = line.find(" ");
-			_host = line.substr(0, pos);
-			_userPassword = line.substr(pos + 1);
-		}
-		file.close();
-	}
-	else
-		throw openException();
-}
+Server::Server(std::string port, std::string password) : _port(port), _password(password) {}
 
 Server::~Server() {}
 
@@ -53,15 +33,17 @@ void Server::getListenerSocket()
 
 	_listener = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
 	if (_listener < 0)
-		std::cout << "Error" << std::endl;
+		throw socketException();
 	if (setsockopt(_listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) < 0)
-		std::cout << "Error" << std::endl;
+		throw setsockoptException();
 	if (bind(_listener, ai->ai_addr, ai->ai_addrlen) < 0) {
-		std::cout << "Error" << std::endl;
 		close(_listener);
+		throw bindException();
 	}
-	if (listen(_listener, BACKLOG) < 0)
-		std::cout << "Error" << std::endl;
+	if (listen(_listener, BACKLOG) < 0) {
+		close(_listener);
+		throw listenException();
+	}
 
 	freeaddrinfo(ai);
 }
@@ -110,23 +92,44 @@ void Server::newClient()
 	Client *newClient = new Client(_newfd);
 	_clients.push_back(newClient);
 	_RPLToSend = "register";
+	_msg.sendMsg(_RPLToSend, newClient);
+	_RPLToSend.clear();
 
 	std::cout << "pollserver: new connection on socket " << _newfd << std::endl;
 }
 
-void Server::clientAlreadyExists(int fd) const
+void Server::clientAlreadyExists(int fd)
 {
 	char buf[256];
+	int recvd = recv(fd, buf, sizeof buf, 0);
 
-	if (recv(fd, buf, sizeof buf, 0) < 0)
+	if (recvd < 0)
 		std::cout << "Error recv()" << std::endl;
+	else if (recvd == 0) {
+		for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
+			if ((*it)->getFd() == fd) {
+				delete *it;
+				_clients.erase(it);
+				std::cout << "Client n" << fd << " disconnected" << std::endl;
+				break;
+			}
+	}
+	else {
+		std::cout << buf << std::endl;
+		std::string ping = buf;
+		if (ping.find("PING ", 0) != std::string::npos) {
+			std::string rep = "PONG " + ping.substr(5, ping.size());
+			send(fd, ping.c_str(), ping.size(), 0);
+			std::cout << "sent pong to n" << _clients[0]->getFd() << std::endl;
+		}
+	}
 }
 
 void Server::handlePollout(int fd)
 {
-	for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++) { 
-		if ((*it)->getFd() == fd) {
-			_msg.sendMsg(_RPLToSend, it);
+	for (size_t i = 0; i < _clients.size(); i++) {
+		if (_clients[i]->getFd() == fd) {
+			_msg.sendMsg(_RPLToSend, _clients[i]);
 			_RPLToSend.clear();
 		}
 	}
