@@ -14,23 +14,31 @@
 #define CLIENT_HPP
 
 #include <string>
+#include <vector>
 
 #include <poll.h>
 
 class Client
 {
 	private:
-		std::string _username, _nickname;
-		int _fd;
-		bool _welcomeSent;
+		std::string	_nickname, _username;  // + realname ?
+		int			_fd;
+		bool		_operator;  // diff par channel ??
+		bool		_welcomeSent;  // utile ?
+		std::vector<std::string>	_channels;
 
 	public:
 		Client(int fd);
 		~Client();
 
-		int getFd() const;
-		bool getWelcomeSent() const;
-		void setWelcomeSent();
+		int		getFd() const;
+		bool	getOperator() const;
+		bool	getWelcomeSent() const;
+		void	setWelcomeSent();
+
+		void	addChannel(std::string channel);
+		void	rmChannel(std::string channel);
+		bool	isMember(std::string channel) const;
 };
 
 #endif
