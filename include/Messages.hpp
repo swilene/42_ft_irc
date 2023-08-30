@@ -14,6 +14,7 @@
 #define MESSAGES_HPP
 
 #include "Client.hpp"
+#include "Channel.hpp"
 
 #include <iostream>
 #include <string>
@@ -38,8 +39,13 @@ class Messages
 		Messages();
 		~Messages();
 
-		void sendMsg(std::string msg, Client *client);
-		void registerMsg(Client *client);
+		void	sendMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels);
+		void	registerMsg(Client *client);
+		void	pingMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
+		void	modeMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
+		void	joinMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
+		void	privMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
+		void	quitMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 };
 
 #endif
