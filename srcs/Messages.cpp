@@ -122,8 +122,6 @@ void	Messages::joinMsg(Client *client, std::string msg, std::vector<Client *> cl
 
 void	Messages::privMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
-	(void)clients;
-	(void)client;
 	std::string chan = msg.substr(msg.find("#", 0) + 1, std::string::npos);
 	chan = chan.substr(0, chan.find(":", 0) - 1);
 
