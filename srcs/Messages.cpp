@@ -122,18 +122,35 @@ void	Messages::joinMsg(Client *client, std::string msg, std::vector<Client *> cl
 
 void	Messages::privMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
-	std::string chan = msg.substr(msg.find("#", 0) + 1, std::string::npos);
-	chan = chan.substr(0, chan.find(":", 0) - 1);
+	if (msg[8] == '#') {  // == channel msg
+		std::string chan = msg.substr(msg.find("#", 0) + 1, std::string::npos);  // juste [8] ?
+		chan = chan.substr(0, chan.find(":", 0) - 1);
 
-	size_t id = 0;
-	while (id < channels.size() && channels[id].getName() != chan)
-		id++;
-	
-	// verifie pas le POLLOUT ...
-	msg = ":" + client->getNick() + " " + msg;  // pour nickname correct
-	for (size_t i = 0; i < clients.size(); i++) {
-		if (channels[id].isMember(clients[i]->getNick()) && clients[i]->getNick() != client->getNick())
-			send(clients[i]->getFd(), msg.c_str(), msg.size(), 0);
+		size_t id = 0;
+		while (id < channels.size() && channels[id].getName() != chan)
+			id++;
+		
+		// verifie pas le POLLOUT ...
+		msg = ":" + client->getNick() + " " + msg;  // pour nickname correct
+		for (size_t i = 0; i < clients.size(); i++) {
+			if (channels[id].isMember(clients[i]->getNick()) && clients[i]->getNick() != client->getNick())
+				send(clients[i]->getFd(), msg.c_str(), msg.size(), 0);
+		}
+	}
+	else {  // == dm
+		std::string target = msg.substr(8, msg.find(' ', 9) - 8);
+		msg = ":" + client->getNick() + " " + msg;
+
+		for (size_t i = 0; i < clients.size(); i++) {
+			if (clients[i]->getNick() == target) {  // CASE INSENSITIVE!!
+				send(clients[i]->getFd(), msg.c_str(), msg.size(), 0);  // verifie pas le POLLOUT !
+				return ;
+			}
+		}
+		// HANDLE ERROR (nick doesnt exist)
+		std::cout << "dm target not found" << std::endl;
+		// std::string err = "401 127.0.0.1 " + client->getNick() + " " + target + " :No such nick/channel";
+		// send(client->getFd(), err.c_str(), err.size(), 0);  //BROKEN
 	}
 }
 
