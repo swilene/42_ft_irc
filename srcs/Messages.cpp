@@ -126,16 +126,16 @@ void	Messages::privMsg(Client *client, std::string msg, std::vector<Client *> cl
 	(void)client;
 	std::string chan = msg.substr(msg.find("#", 0) + 1, std::string::npos);
 	chan = chan.substr(0, chan.find(":", 0) - 1);
-	// std::string message = msg.substr(msg.find(":", 0) + 1, std::string::npos);
 
 	size_t id = 0;
 	while (id < channels.size() && channels[id].getName() != chan)
 		id++;
 	
 	// verifie pas le POLLOUT ...
+	msg = ":" + client->getNick() + " " + msg;  // pour nickname correct
 	for (size_t i = 0; i < clients.size(); i++) {
 		if (channels[id].isMember(clients[i]->getNick()) && clients[i]->getNick() != client->getNick())
-			send(clients[i]->getFd(), msg.c_str(), msg.size(), 0);  //marche mais mauvais nickname...
+			send(clients[i]->getFd(), msg.c_str(), msg.size(), 0);
 	}
 }
 
