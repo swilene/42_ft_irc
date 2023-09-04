@@ -148,8 +148,8 @@ void	Messages::privMsg(Client *client, std::string msg, std::vector<Client *> cl
 		}
 		// HANDLE ERROR (nick doesnt exist)
 		std::cout << "dm target not found" << std::endl;
-		// std::string err = "401 127.0.0.1 " + client->getNick() + " " + target + " :No such nick/channel";
-		// send(client->getFd(), err.c_str(), err.size(), 0);  //BROKEN
+		std::string err = "401 127.0.0.1 " + target + " " + client->getNick() + " :No such nick/channel\r\n";
+		send(client->getFd(), err.c_str(), err.size(), 0);
 	}
 }
 
