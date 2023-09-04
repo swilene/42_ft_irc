@@ -106,7 +106,7 @@ void Server::newClient()
 	std::cout << "pollserver: new connection on socket " << _newfd << std::endl;
 }
 
-void Server::clientAlreadyExists(int pos)  // pourrait juste envoyer _clients[i - 1]
+void Server::clientAlreadyExists(int pos)
 {
 	char buf[256];
 	int recvd = recv(_pollfdClients[pos].fd, buf, sizeof buf, 0);

@@ -12,7 +12,7 @@
 
 #include "Client.hpp"
 
-Client::Client(int fd, pollfd &pfd) : _fd(fd) {}
+Client::Client(int fd) : _fd(fd) {}
 
 Client::~Client() { close(_fd); }
 
