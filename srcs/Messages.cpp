@@ -31,7 +31,7 @@ void Messages::sendMsg(std::string msg, Client *client, std::vector<Client *> cl
 		if (msgs[i] == cmd)
 			(this->*m[i])(client, msg, clients, channels);
 	}
-	std::cout << std::endl;
+	// std::cout << std::endl;  ????????????????
 }
 
 void Messages::registerMsg(Client *client)
@@ -97,7 +97,6 @@ void	Messages::modeMsg(Client *client, std::string msg, std::vector<Client *> cl
 
 void	Messages::joinMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
-	(void)client;
 	(void)clients;
 
 	std::string name = msg.substr(msg.find("#", 0) + 1, std::string::npos);

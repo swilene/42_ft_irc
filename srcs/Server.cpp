@@ -55,7 +55,6 @@ void Server::mainLoop()
 	_pollfdClients.push_back(_pollfdServer);
 
 	while (exitServer == false) {
-		std::cout << "pollfd size= " << _pollfdClients.size() << std::endl;
 		if (poll(_pollfdClients.data(), _pollfdClients.size(), -1) < 0)
 			throw pollException();
 		//run through the existing connections looking for data to read
@@ -64,7 +63,6 @@ void Server::mainLoop()
 				if (_pollfdClients[i].fd == _listener)
 					newClient();
 				else {
-					// clientAlreadyExists(_pollfdClients[i].fd);
 					clientAlreadyExists(i);
 					if (_RPLToSend.empty())
 						i--;  // deleted a client
@@ -98,7 +96,7 @@ void Server::newClient()
 	newPollfd.events = POLLIN | POLLOUT;
 	_pollfdNew.push_back(newPollfd);
 	
-	Client *newClient = new Client(_newfd, newPollfd);
+	Client *newClient = new Client(_newfd);
 	_clients.push_back(newClient);
 	// _RPLToSend = "register";
 	// _msg.sendMsg(_RPLToSend, newClient);

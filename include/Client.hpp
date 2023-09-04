@@ -24,10 +24,10 @@ class Client
 	private:
 		std::string _user, _nick, _host;
 		int			_fd;
-		pollfd		&_pollfd;  // a voir si necessaire
+		// pollfd		&_pollfd;  // marche pas comme ca
 
 	public:
-		Client(int fd, pollfd &pfd);
+		Client(int fd);
 		~Client();
 
 		// setter
@@ -39,7 +39,6 @@ class Client
 		std::string getUser() const;
 		std::string getNick() const;
 		std::string getHost() const;
-		pollfd		&getPollfd() const;
 		int 		getFd() const;
 };
 
