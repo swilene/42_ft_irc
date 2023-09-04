@@ -16,16 +16,18 @@
 #include <string>
 
 #include <cctype>
+#include <unistd.h> //close
 #include <poll.h>
 
 class Client
 {
 	private:
 		std::string _user, _nick, _host;
-		int _fd;
+		int			_fd;
+		pollfd		&_pollfd;  // a voir si necessaire
 
 	public:
-		Client(int fd);
+		Client(int fd, pollfd &pfd);
 		~Client();
 
 		// setter
@@ -37,7 +39,8 @@ class Client
 		std::string getUser() const;
 		std::string getNick() const;
 		std::string getHost() const;
-		int getFd() const;
+		pollfd		&getPollfd() const;
+		int 		getFd() const;
 };
 
 #endif

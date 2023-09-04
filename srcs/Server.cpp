@@ -55,23 +55,28 @@ void Server::mainLoop()
 	_pollfdClients.push_back(_pollfdServer);
 
 	while (exitServer == false) {
-		if (poll((pollfd *)&_pollfdClients[0], _pollfdClients.size(), -1) < 0)
+		std::cout << "pollfd size= " << _pollfdClients.size() << std::endl;
+		if (poll(_pollfdClients.data(), _pollfdClients.size(), -1) < 0)
 			throw pollException();
 		//run through the existing connections looking for data to read
-		// for (std::vector<pollfd>::iterator it = _pollfdClients.begin(); it != _pollfdClients.end(); it++) {
 		for (size_t i = 0; i < _pollfdClients.size(); i++) {
 			if (_pollfdClients[i].revents & POLLIN) {
 				if (_pollfdClients[i].fd == _listener)
 					newClient();
 				else {
-					clientAlreadyExists(_pollfdClients[i].fd);
-					_msg.sendMsg(_RPLToSend, _clients[i - 1], _clients, _channels);
-					_RPLToSend.clear();
+					// clientAlreadyExists(_pollfdClients[i].fd);
+					clientAlreadyExists(i);
+					if (_RPLToSend.empty())
+						i--;  // deleted a client
+					else {
+						_msg.sendMsg(_RPLToSend, _clients[i - 1], _clients, _channels);
+						_RPLToSend.clear();
+					}
 				}
 			}
 			// else if (it->revents & POLLOUT)
 			// 	handlePollout(it->fd);
-			//else if (it->revents & POLLERR)
+			// else if (it->revents & POLLERR)
 		}
 		_pollfdClients.insert(_pollfdClients.end(), _pollfdNew.begin(), _pollfdNew.end());
 		_pollfdNew.clear();
@@ -93,7 +98,7 @@ void Server::newClient()
 	newPollfd.events = POLLIN | POLLOUT;
 	_pollfdNew.push_back(newPollfd);
 	
-	Client *newClient = new Client(_newfd);
+	Client *newClient = new Client(_newfd, newPollfd);
 	_clients.push_back(newClient);
 	// _RPLToSend = "register";
 	// _msg.sendMsg(_RPLToSend, newClient);
@@ -103,25 +108,22 @@ void Server::newClient()
 	std::cout << "pollserver: new connection on socket " << _newfd << std::endl;
 }
 
-void Server::clientAlreadyExists(int fd)
+void Server::clientAlreadyExists(int pos)  // pourrait juste envoyer _clients[i - 1]
 {
 	char buf[256];
-	int recvd = recv(fd, buf, sizeof buf, 0);
+	int recvd = recv(_pollfdClients[pos].fd, buf, sizeof buf, 0);
 
 	if (recvd < 0)
 		std::cout << "Error recv()" << std::endl;
-	else if (recvd == 0) {
-		for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); it++)
-			if ((*it)->getFd() == fd) {
-				delete *it;
-				_clients.erase(it);
-				std::cout << "Client n" << fd << " disconnected" << std::endl;
-				break;
-			}
+	else if (recvd == 0) {  // == disconnected
+		delete _clients[pos - 1];
+		_clients.erase(_clients.begin() + pos - 1);
+		_pollfdClients.erase(_pollfdClients.begin() + pos);
+		std::cout << "Client n" << pos << " disconnected" << std::endl;
 	}
 	else {
 		buf[recvd] = '\0';
-		std::cout << "client n" << fd << ": " << buf << std::endl;
+		std::cout << "client n" << pos << ": " << buf << std::endl;
 		_RPLToSend = buf;
 		// _RPLToSend.clear();
 		// std::cout << buf << std::endl;
