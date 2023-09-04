@@ -33,7 +33,7 @@ class Messages
 	private:
 		std::string _rpl, _servername, _version;
 		time_t _start;
-		tm *_now;
+		// tm *_now;
 
 	public:
 		Messages();
