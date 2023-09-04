@@ -66,7 +66,7 @@ class Server
 
 		void mainLoop();
 		void newClient();
-		void clientAlreadyExists(int fd);
+		void clientAlreadyExists(int pos);
 		void handlePollout(int fd);
 		//void handlePollin();
 
