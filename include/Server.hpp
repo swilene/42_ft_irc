@@ -15,6 +15,7 @@
 
 #include "Client.hpp"
 #include "Messages.hpp"
+#include "Channel.hpp"
 
 #include <exception>
 #include <vector>
@@ -42,9 +43,10 @@ class Server
 		std::string _host;
 		std::string _userPassword;
 
-		std::vector<Client *> _clients;
-		std::vector<pollfd> _pollfdClients;
-		std::vector<pollfd> _pollfdNew;
+		std::vector<Client *>	_clients;
+		std::vector<pollfd>		_pollfdClients;
+		std::vector<pollfd>		_pollfdNew;
+		std::vector<Channel>	_channels;
 		pollfd _pollfdServer;
 
 		int _listener, _newfd;
