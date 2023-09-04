@@ -22,12 +22,12 @@ Messages::~Messages() {}
 void Messages::sendMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
 	std::string cmd = msg.substr(0, msg.find(" ", 0));
-	std::string msgs[5] = {"PING", "MODE", "JOIN", "PRIVMSG", "QUIT"};
+	std::string msgs[6] = {"PING", "MODE", "JOIN", "PRIVMSG", "PART", "QUIT"};
 
-	void (Messages::*m[5])(Client *, std::string, std::vector<Client *>, std::vector<Channel>&) = {&Messages::pingMsg,
-		&Messages::modeMsg, &Messages::joinMsg, &Messages::privMsg, &Messages::quitMsg};
+	void (Messages::*m[6])(Client *, std::string, std::vector<Client *>, std::vector<Channel>&) = {&Messages::pingMsg,
+		&Messages::modeMsg, &Messages::joinMsg, &Messages::privMsg, &Messages::partMsg, &Messages::quitMsg};
 
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 6; i++) {
 		if (msgs[i] == cmd)
 			(this->*m[i])(client, msg, clients, channels);
 	}
@@ -150,6 +150,62 @@ void	Messages::privMsg(Client *client, std::string msg, std::vector<Client *> cl
 		std::cout << "dm target not found" << std::endl;
 		std::string err = "401 127.0.0.1 " + target + " " + client->getNick() + " :No such nick/channel\r\n";
 		send(client->getFd(), err.c_str(), err.size(), 0);
+	}
+}
+
+void	Messages::partMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels)
+{
+	(void)clients;
+	// (void)channels;
+
+	int	chanCount = 0;
+	for (int i = 0; msg[i] != '\r' && msg[i] != ':'; i++)
+		if (msg[i] == '#')
+			chanCount++;
+	
+	std::string msgCopy = msg;
+	std::string partMsg;
+	std::vector<std::string> chans;
+	// get channels to leave
+	for (int i = 0; i < chanCount; i++) {
+		msgCopy = msgCopy.substr(msgCopy.find("#", 0) + 1, std::string::npos);
+
+		std::string chan;
+		if (i < chanCount - 1)
+			chan = msgCopy.substr(0, msgCopy.find(',', 0));
+		else if (msgCopy.find(' ', 0) != std::string::npos)  // == if part message
+			chan = msgCopy.substr(0, msgCopy.find(' ', 0));
+		else
+			chan = msgCopy.substr(0, msgCopy.find('\r', 0));
+		chans.push_back(chan);
+	}
+	// get part message
+	if (msgCopy.find(':', 0) != std::string::npos)
+		partMsg = msgCopy.substr(msgCopy.find(':', 0) - 1, std::string::npos);
+	else
+		partMsg = "\r\n";
+
+	// DOIT tolower() LES CHANS !!
+
+	// leave parsed channels
+	for (size_t i = 0; i < chans.size(); i++) {
+		size_t j;
+		for (j = 0; j < channels.size(); j++)
+			if (channels[j].getName() == chans[i])
+				break;
+		if (j < channels.size()) {
+			if (channels[j].isMember(client->getNick())) {
+				channels[j].rmMember(client->getNick());
+				// if members == 0 delete channel ????
+				std::string reply = ":" + client->getNick() + " PART #" + chans[i] + partMsg;
+				send(client->getFd(), reply.c_str(), reply.size(), 0);
+				// + send it to all members ?
+			}
+			else
+				std::cout << "you are not on that channel" << std::endl;  //handle error
+		}
+		else
+			std::cout << "chan does not exist" << std::endl;  //handle error
 	}
 }
 
