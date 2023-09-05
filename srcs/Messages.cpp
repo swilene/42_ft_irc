@@ -203,7 +203,8 @@ void	Messages::partMsg(Client *client, std::string msg, std::vector<Client *> cl
 				break;
 		if (j < channels.size()) {
 			if (channels[j].isMember(client->getNick())) {
-				std::string reply = ":" + client->getNick() + " PART #" + chans[i] + partMsg;
+				// s'affiche correctement mais close pas la tab
+				std::string reply = ":" + client->getNick() + "!" + client->getUser() + "@127.0.0.1" + " PART #" + chans[i] + partMsg;
 				_RPL = reply;
 				_RPLtarget = channels[j].getMembers();
 				channels[j].rmMember(client->getNick());

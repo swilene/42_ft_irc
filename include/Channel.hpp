@@ -13,6 +13,7 @@ class Channel {
 		bool			_topicRights; 	// -t
 		std::string		_password;    	// -k
 		int				_userLimit;   	// -l
+		// mettre les *Client
 		std::vector<std::string>	_operators; // -o
 		std::vector<std::string>	_members;   //save nickname
 
