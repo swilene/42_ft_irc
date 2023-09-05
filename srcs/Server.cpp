@@ -18,7 +18,7 @@ Server::Server(std::string port, std::string password) : _port(port), _password(
 
 Server::~Server() {}
 
-std::string Server::getRPLToSend() const { return(_RPLToSend); }
+std::string Server::getMsgReceived() const { return(_msgReceived); }
 
 void Server::getListenerSocket()
 {
@@ -55,28 +55,36 @@ void Server::mainLoop()
 	_pollfdClients.push_back(_pollfdServer);
 
 	while (exitServer == false) {
-		std::cout << "pollfd size= " << _pollfdClients.size() << std::endl;
 		if (poll(_pollfdClients.data(), _pollfdClients.size(), -1) < 0)
 			throw pollException();
-		//run through the existing connections looking for data to read
-		for (size_t i = 0; i < _pollfdClients.size(); i++) {
-			if (_pollfdClients[i].revents & POLLIN) {
-				if (_pollfdClients[i].fd == _listener)
-					newClient();
-				else {
-					// clientAlreadyExists(_pollfdClients[i].fd);
-					clientAlreadyExists(i);
-					if (_RPLToSend.empty())
-						i--;  // deleted a client
-					else {
-						_msg.sendMsg(_RPLToSend, _clients[i - 1], _clients, _channels);
-						_RPLToSend.clear();
-					}
+		//if reply to send
+		if (!_msg.getRPL().empty()) {
+			for (size_t i = 1; i < _pollfdClients.size(); i++) {
+				if (_msg.getRPLtarget()[0] == _clients[i - 1]->getNick() && _pollfdClients[i].revents & POLLOUT) {
+					_msg.sendRPL(_clients[i - 1]);
+					break;
 				}
 			}
-			// else if (it->revents & POLLOUT)
-			// 	handlePollout(it->fd);
-			// else if (it->revents & POLLERR)
+		}
+		else {
+			//run through the existing connections looking for data to read
+			for (size_t i = 0; i < _pollfdClients.size(); i++) {
+				if (_pollfdClients[i].revents & POLLIN) {
+					if (_pollfdClients[i].fd == _listener)
+						newClient();
+					else {
+						clientAlreadyExists(i);
+						if (_msgReceived.empty())
+							i--;  // deleted a client
+						else {
+							_msg.parseMsg(_msgReceived, _clients[i - 1], _clients, _channels);
+							_msgReceived.clear();
+						}
+					}
+					break;
+				}
+				// else if (it->revents & POLLERR)
+			}
 		}
 		_pollfdClients.insert(_pollfdClients.end(), _pollfdNew.begin(), _pollfdNew.end());
 		_pollfdNew.clear();
@@ -98,17 +106,14 @@ void Server::newClient()
 	newPollfd.events = POLLIN | POLLOUT;
 	_pollfdNew.push_back(newPollfd);
 	
-	Client *newClient = new Client(_newfd, newPollfd);
+	Client *newClient = new Client(_newfd);
 	_clients.push_back(newClient);
-	// _RPLToSend = "register";
-	// _msg.sendMsg(_RPLToSend, newClient);
 	_msg.registerMsg(newClient);  // register direct ?
-	// _RPLToSend.clear();
 
 	std::cout << "pollserver: new connection on socket " << _newfd << std::endl;
 }
 
-void Server::clientAlreadyExists(int pos)  // pourrait juste envoyer _clients[i - 1]
+void Server::clientAlreadyExists(int pos)
 {
 	char buf[256];
 	int recvd = recv(_pollfdClients[pos].fd, buf, sizeof buf, 0);
@@ -124,24 +129,6 @@ void Server::clientAlreadyExists(int pos)  // pourrait juste envoyer _clients[i 
 	else {
 		buf[recvd] = '\0';
 		std::cout << "client n" << pos << ": " << buf << std::endl;
-		_RPLToSend = buf;
-		// _RPLToSend.clear();
-		// std::cout << buf << std::endl;
-		// std::string ping = buf;
-		// if (ping.find("PING ", 0) != std::string::npos) {
-		// 	std::string rep = "PONG " + ping.substr(5, ping.size());
-		// 	send(fd, ping.c_str(), ping.size(), 0);
-		// 	std::cout << "sent pong to n" << _clients[0]->getFd() << std::endl;
-		// }
-	}
-}
-
-void Server::handlePollout(int fd)
-{
-	for (size_t i = 0; i < _clients.size(); i++) {
-		if (_clients[i]->getFd() == fd) {
-			// _msg.sendMsg(_RPLToSend, _clients[i]);
-			_RPLToSend.clear();
-		}
+		_msgReceived = buf;
 	}
 }

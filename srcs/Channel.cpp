@@ -28,6 +28,8 @@ void		Channel::setPassword(std::string password) { _password = password; }
 int			Channel::getUserLimit() const { return _userLimit; }
 void		Channel::setUserLimit(int limit) { _userLimit = limit; }
 
+std::vector<std::string> Channel::getMembers() const { return _members; }
+
 void		Channel::addOperator(std::string nickname)
 {
 	// case sensitive ? a verif

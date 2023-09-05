@@ -12,26 +12,36 @@
 
 #include "Messages.hpp"
 
-Messages::Messages() : _servername("localhost"), _version("1.1")
-{
-	_start = time(NULL);
-}
+Messages::Messages() : _servername("localhost"), _version("1.1") {}
 
 Messages::~Messages() {}
 
-void Messages::sendMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels)
+std::string	Messages::getRPL() const { return _RPL; }
+std::vector<std::string> Messages::getRPLtarget() const { return _RPLtarget; }
+
+void Messages::parseMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
 	std::string cmd = msg.substr(0, msg.find(" ", 0));
-	std::string msgs[5] = {"PING", "MODE", "JOIN", "PRIVMSG", "QUIT"};
+	std::string msgs[6] = {"PING", "MODE", "JOIN", "PRIVMSG", "PART", "QUIT"};
 
-	void (Messages::*m[5])(Client *, std::string, std::vector<Client *>, std::vector<Channel>&) = {&Messages::pingMsg,
-		&Messages::modeMsg, &Messages::joinMsg, &Messages::privMsg, &Messages::quitMsg};
+	void (Messages::*m[6])(Client *, std::string, std::vector<Client *>, std::vector<Channel>&) = {&Messages::pingMsg,
+		&Messages::modeMsg, &Messages::joinMsg, &Messages::privMsg, &Messages::partMsg, &Messages::quitMsg};
 
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 6; i++) {
 		if (msgs[i] == cmd)
 			(this->*m[i])(client, msg, clients, channels);
 	}
-	std::cout << std::endl;
+}
+
+void Messages::sendRPL(Client *client)
+{
+	send(client->getFd(), _RPL.c_str(), _RPL.size(), 0);
+
+	std::cout << " SENDING [" << _RPL.substr(0, _RPL.size() - 2) << "\\r\\n] TO [" << client->getNick() << "]" << std::endl; 
+	
+	_RPLtarget.erase(_RPLtarget.begin());
+	if (_RPLtarget.size() == 0)
+		_RPL.clear();
 }
 
 void Messages::registerMsg(Client *client)
@@ -60,18 +70,8 @@ void Messages::registerMsg(Client *client)
 	user = user.substr(0, user.find(" ", 1));
 	client->setUser(user);
 
-	_rpl = WELCOME(client->getNick(), client->getUser());
-	send(client->getFd(), _rpl.c_str(), _rpl.size(), 0);
-	std::cout << "[REPLY] " << _rpl << std::endl;
-
-	//essai pour changer de nick, marche po
-	// if (client->getFd() > 4)
-	// {
-	// 	std::string newnick = nick;
-	// 	newnick += client->getFd() + 48;
-	// 	std::string nickcmd = ":127.0.0.1 NICK " + nick + " " + newnick;
-	// 	send(client->getFd(), nickcmd.c_str(), nickcmd.size(), 0);
-	// }
+	_RPL = WELCOME(client->getNick(), client->getUser());
+	_RPLtarget.push_back(client->getNick());
 }
 
 void	Messages::pingMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels)
@@ -80,11 +80,12 @@ void	Messages::pingMsg(Client *client, std::string msg, std::vector<Client *> cl
 	(void)channels;
 
 	std::string	pong = "PONG ";
-	std::string	server = msg.substr(msg.find("PING ", 0) + 5, msg.find("\r\n", 0));
+	std::string	server = msg.substr(msg.find("PING ", 0) + 5, std::string::npos);
+	server = server.substr(0, server.find("\r\n", 0));
 	pong += server + "\r\n";
-	std::cout << pong << std::endl;
 
-	send(client->getFd(), pong.c_str(), pong.size(), 0);
+	_RPL = pong;
+	_RPLtarget.push_back(client->getNick());
 }
 
 void	Messages::modeMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels)
@@ -97,13 +98,13 @@ void	Messages::modeMsg(Client *client, std::string msg, std::vector<Client *> cl
 
 void	Messages::joinMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
-	(void)client;
 	(void)clients;
 
 	std::string name = msg.substr(msg.find("#", 0) + 1, std::string::npos);
 	name = name.substr(0, name.find("\r\n", 0));
 	size_t		i = 0;
 	
+	// not sending any RPL ...
 	while (i < channels.size()) {
 		if (channels[i].getName() == name)
 			break;
@@ -129,13 +130,24 @@ void	Messages::privMsg(Client *client, std::string msg, std::vector<Client *> cl
 		size_t id = 0;
 		while (id < channels.size() && channels[id].getName() != chan)
 			id++;
-		
-		// verifie pas le POLLOUT ...
+
 		msg = ":" + client->getNick() + " " + msg;  // pour nickname correct
-		for (size_t i = 0; i < clients.size(); i++) {
-			if (channels[id].isMember(clients[i]->getNick()) && clients[i]->getNick() != client->getNick())
-				send(clients[i]->getFd(), msg.c_str(), msg.size(), 0);
+
+		if (!channels[id].isMember(client->getNick())) {
+			std::cout << "you are not on that channel" << std::endl;
+			return ;
 		}
+
+		_RPL = msg;
+		_RPLtarget = channels[id].getMembers();
+		for (size_t i = 0; i < _RPLtarget.size(); i++) {
+			if (_RPLtarget[i] == client->getNick()) {
+				_RPLtarget.erase(_RPLtarget.begin() + i);
+				break ;
+			}
+		}
+		if (_RPLtarget.size() == 0)
+			_RPL.clear();
 	}
 	else {  // == dm
 		std::string target = msg.substr(8, msg.find(' ', 9) - 8);
@@ -143,14 +155,65 @@ void	Messages::privMsg(Client *client, std::string msg, std::vector<Client *> cl
 
 		for (size_t i = 0; i < clients.size(); i++) {
 			if (clients[i]->getNick() == target) {  // CASE INSENSITIVE!!
-				send(clients[i]->getFd(), msg.c_str(), msg.size(), 0);  // verifie pas le POLLOUT !
-				return ;
+				_RPL = msg;
+				_RPLtarget.push_back(target);
+				return;
 			}
 		}
 		// HANDLE ERROR (nick doesnt exist)
 		std::cout << "dm target not found" << std::endl;
-		// std::string err = "401 127.0.0.1 " + client->getNick() + " " + target + " :No such nick/channel";
-		// send(client->getFd(), err.c_str(), err.size(), 0);  //BROKEN
+		std::string err = "401 127.0.0.1 " + target + " " + client->getNick() + " :No such nick/channel\r\n";
+		_RPL = err;
+		_RPLtarget.push_back(client->getNick());
+	}
+}
+
+void	Messages::partMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels)
+{
+	(void)clients;
+
+	std::string	partMsg;
+	std::vector<std::string> chans;
+	// get channels to leave
+	while (msg.find('#', 0) != std::string::npos && msg.find('#', 0) < msg.find(':', 0)) {
+		msg = msg.substr(msg.find('#', 0) + 1, std::string::npos);
+
+		std::string chan;
+		if (msg.find('#', 0) != std::string::npos && msg.find('#', 0) < msg.find(':', 0))  // 2eme condition si '#' dans partmsg
+			chan = msg.substr(0, msg.find(',', 0));
+		else if (msg.find(' ', 0) != std::string::npos)  // == if part message
+			chan = msg.substr(0, msg.find(' ', 0));
+		else
+			chan = msg.substr(0, msg.find('\r', 0));
+		chans.push_back(chan);
+	}
+	// get part message
+	if (msg.find(':', 0) != std::string::npos)
+		partMsg = msg.substr(msg.find(':', 0) - 1, std::string::npos);
+	else
+		partMsg = "\r\n";
+
+	// DOIT tolower() LES CHANS !!
+
+	// leave parsed channels
+	for (size_t i = 0; i < chans.size(); i++) {
+		size_t j;
+		for (j = 0; j < channels.size(); j++)
+			if (channels[j].getName() == chans[i])
+				break;
+		if (j < channels.size()) {
+			if (channels[j].isMember(client->getNick())) {
+				std::string reply = ":" + client->getNick() + " PART #" + chans[i] + partMsg;
+				_RPL = reply;
+				_RPLtarget = channels[j].getMembers();
+				channels[j].rmMember(client->getNick());
+				// if members == 0 delete channel ????
+			}
+			else
+				std::cout << "you are not on that channel" << std::endl;  //handle error
+		}
+		else
+			std::cout << "chan does not exist" << std::endl;  //handle error
 	}
 }
 

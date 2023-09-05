@@ -31,20 +31,25 @@ class Server;
 class Messages
 {
 	private:
-		std::string _rpl, _servername, _version;
-		time_t _start;
-		// tm *_now;
+		std::string _servername, _version;
+		std::string	_RPL;
+		std::vector<std::string> _RPLtarget;
 
 	public:
 		Messages();
 		~Messages();
 
-		void	sendMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels);
+		std::string					getRPL() const;
+		std::vector<std::string>	getRPLtarget() const;
+
+		void	parseMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels);
+		void	sendRPL(Client *client);
 		void	registerMsg(Client *client);
 		void	pingMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	modeMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	joinMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	privMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
+		void	partMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	quitMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 };
 

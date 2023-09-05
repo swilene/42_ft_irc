@@ -32,6 +32,8 @@ class Channel {
 		int			getUserLimit() const;
 		void		setUserLimit(int limit);
 
+		std::vector<std::string> getMembers() const;
+
 		void		addOperator(std::string nickname);
 		void		rmOperator(std::string nickname);
 		bool		isOperator(std::string nickname) const;
