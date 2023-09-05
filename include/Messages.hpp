@@ -31,8 +31,9 @@ class Server;
 class Messages
 {
 	private:
-		std::string _rpl, _servername, _version;
-		time_t _start;
+		std::string _servername, _version;
+		std::string _rpl;
+		// time_t _start;
 		// tm *_now;
 
 	public:

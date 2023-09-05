@@ -14,7 +14,7 @@
 
 Messages::Messages() : _servername("localhost"), _version("1.1")
 {
-	_start = time(NULL);
+	// _start = time(NULL);
 }
 
 Messages::~Messages() {}
@@ -155,33 +155,24 @@ void	Messages::privMsg(Client *client, std::string msg, std::vector<Client *> cl
 
 void	Messages::partMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
-	(void)clients;
-	// (void)channels;
-
-	int	chanCount = 0;
-	for (int i = 0; msg[i] != '\r' && msg[i] != ':'; i++)
-		if (msg[i] == '#')
-			chanCount++;
-	
-	std::string msgCopy = msg;
-	std::string partMsg;
+	std::string	partMsg;
 	std::vector<std::string> chans;
 	// get channels to leave
-	for (int i = 0; i < chanCount; i++) {
-		msgCopy = msgCopy.substr(msgCopy.find("#", 0) + 1, std::string::npos);
+	while (msg.find('#', 0) != std::string::npos && msg.find('#', 0) < msg.find(':', 0)) {
+		msg = msg.substr(msg.find('#', 0) + 1, std::string::npos);
 
 		std::string chan;
-		if (i < chanCount - 1)
-			chan = msgCopy.substr(0, msgCopy.find(',', 0));
-		else if (msgCopy.find(' ', 0) != std::string::npos)  // == if part message
-			chan = msgCopy.substr(0, msgCopy.find(' ', 0));
+		if (msg.find('#', 0) != std::string::npos && msg.find('#', 0) < msg.find(':', 0))  // 2eme condition si '#' dans partmsg
+			chan = msg.substr(0, msg.find(',', 0));
+		else if (msg.find(' ', 0) != std::string::npos)  // == if part message
+			chan = msg.substr(0, msg.find(' ', 0));
 		else
-			chan = msgCopy.substr(0, msgCopy.find('\r', 0));
+			chan = msg.substr(0, msg.find('\r', 0));
 		chans.push_back(chan);
 	}
 	// get part message
-	if (msgCopy.find(':', 0) != std::string::npos)
-		partMsg = msgCopy.substr(msgCopy.find(':', 0) - 1, std::string::npos);
+	if (msg.find(':', 0) != std::string::npos)
+		partMsg = msg.substr(msg.find(':', 0) - 1, std::string::npos);
 	else
 		partMsg = "\r\n";
 
@@ -195,11 +186,13 @@ void	Messages::partMsg(Client *client, std::string msg, std::vector<Client *> cl
 				break;
 		if (j < channels.size()) {
 			if (channels[j].isMember(client->getNick())) {
+				std::string reply = ":" + client->getNick() + " PART #" + chans[i] + partMsg;
+				// send(client->getFd(), reply.c_str(), reply.size(), 0);
+				for (size_t k = 0; k < clients.size(); k++)
+					if (channels[j].isMember(clients[k]->getNick()))
+						send(clients[k]->getFd(), reply.c_str(), reply.size(), 0);
 				channels[j].rmMember(client->getNick());
 				// if members == 0 delete channel ????
-				std::string reply = ":" + client->getNick() + " PART #" + chans[i] + partMsg;
-				send(client->getFd(), reply.c_str(), reply.size(), 0);
-				// + send it to all members ?
 			}
 			else
 				std::cout << "you are not on that channel" << std::endl;  //handle error
