@@ -54,20 +54,20 @@ class Server
 		socklen_t _addrlen;
 		sockaddr_storage _remoteaddr;
 		
-		Messages _msg;
-		std::string _RPLToSend;
+		Messages 	_msg;
+		std::string _msgReceived;
 
 	public:
 		Server(std::string port, std::string password);
 		~Server();
 
-		std::string getRPLToSend() const;
-		void getListenerSocket();
+		std::string getMsgReceived() const;
+		void 		getListenerSocket();
 
 		void mainLoop();
 		void newClient();
 		void clientAlreadyExists(int pos);
-		void handlePollout(int fd);
+		// void handlePollout(int fd);
 		//void handlePollin();
 
 		class getaddrinfoException : public std::exception

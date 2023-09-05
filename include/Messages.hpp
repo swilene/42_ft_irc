@@ -32,15 +32,18 @@ class Messages
 {
 	private:
 		std::string _servername, _version;
-		std::string _rpl;
-		// time_t _start;
-		// tm *_now;
+		std::string	_RPL;
+		std::vector<std::string> _RPLtarget;
 
 	public:
 		Messages();
 		~Messages();
 
-		void	sendMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels);
+		std::string					getRPL() const;
+		std::vector<std::string>	getRPLtarget() const;
+
+		void	parseMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels);
+		void	sendRPL(Client *client);
 		void	registerMsg(Client *client);
 		void	pingMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	modeMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
