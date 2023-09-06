@@ -60,7 +60,7 @@ void Server::mainLoop()
 		//if reply to send
 		if (!_msg.getRPL().empty()) {
 			for (size_t i = 1; i < _pollfdClients.size(); i++) {
-				if (_msg.getRPLtarget()[0] == _clients[i - 1]->getNick() && _pollfdClients[i].revents & POLLOUT) {
+				if (_msg.getRPLtarget()[0] == _clients[i - 1] && _pollfdClients[i].revents & POLLOUT) {
 					_msg.sendRPL(_clients[i - 1]);
 					break;
 				}
@@ -122,8 +122,10 @@ void Server::clientAlreadyExists(int pos)
 		std::cout << "Error recv()" << std::endl;
 	else if (recvd == 0) {  // == disconnected
 		delete _clients[pos - 1];
-		_clients.erase(_clients.begin() + pos - 1);
 		_pollfdClients.erase(_pollfdClients.begin() + pos);
+		for (size_t i = 0; i < _channels.size(); i++)
+			_channels[i].rmMember(_clients[pos - 1]);  //pas besoin de verif si membre
+		_clients.erase(_clients.begin() + pos - 1);
 		std::cout << "Client n" << pos << " disconnected" << std::endl;
 	}
 	else {

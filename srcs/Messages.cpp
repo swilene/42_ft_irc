@@ -17,7 +17,7 @@ Messages::Messages() : _servername("localhost"), _version("1.1") {}
 Messages::~Messages() {}
 
 std::string	Messages::getRPL() const { return _RPL; }
-std::vector<std::string> Messages::getRPLtarget() const { return _RPLtarget; }
+std::vector<Client *> Messages::getRPLtarget() const { return _RPLtarget; }
 
 void Messages::parseMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
@@ -52,7 +52,7 @@ void Messages::registerMsg(Client *client)
 	while (fullbuf.find("USER", 0) == std::string::npos) {
 		ssize_t recvd = recv(client->getFd(), buf, sizeof(buf), 0);
 		if (recvd < 0)
-			std::cout << "Error recv()" << std::endl;
+			std::cout << "Error recv()" << std::endl; //return ?
 		buf[recvd] = '\0';
 		fullbuf += buf;
 	}
@@ -71,7 +71,7 @@ void Messages::registerMsg(Client *client)
 	client->setUser(user);
 
 	_RPL = WELCOME(client->getNick(), client->getUser());
-	_RPLtarget.push_back(client->getNick());
+	_RPLtarget.push_back(client);
 }
 
 void	Messages::pingMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels)
@@ -85,7 +85,7 @@ void	Messages::pingMsg(Client *client, std::string msg, std::vector<Client *> cl
 	pong += server + "\r\n";
 
 	_RPL = pong;
-	_RPLtarget.push_back(client->getNick());
+	_RPLtarget.push_back(client);
 }
 
 void	Messages::modeMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels)
@@ -103,8 +103,7 @@ void	Messages::joinMsg(Client *client, std::string msg, std::vector<Client *> cl
 	std::string name = msg.substr(msg.find("#", 0) + 1, std::string::npos);
 	name = name.substr(0, name.find("\r\n", 0));
 	size_t		i = 0;
-	
-	// not sending any RPL ...
+
 	while (i < channels.size()) {
 		if (channels[i].getName() == name)
 			break;
@@ -112,12 +111,16 @@ void	Messages::joinMsg(Client *client, std::string msg, std::vector<Client *> cl
 	}
 	if (i == channels.size() || channels.size() == 0)
 	{
-		Channel newchan(name, client->getNick());
+		Channel newchan(name, client);
 		channels.push_back(newchan);
+		_RPL = ":" + client->getNick() + "!" + client->getUser() + "@127.0.0.1" + " JOIN #" + name + "\r\n";
+		_RPLtarget.push_back(client);
 	}
 	else {
 		std::cout << "joined existing chan" << std::endl;
-		channels[i].addMember(client->getNick());
+		channels[i].addMember(client);
+		_RPL = ":" + client->getNick() + "!" + client->getUser() + "@127.0.0.1" + " JOIN #" + name + "\r\n";
+		_RPLtarget.push_back(client);
 	}
 }
 
@@ -133,7 +136,7 @@ void	Messages::privMsg(Client *client, std::string msg, std::vector<Client *> cl
 
 		msg = ":" + client->getNick() + " " + msg;  // pour nickname correct
 
-		if (!channels[id].isMember(client->getNick())) {
+		if (!channels[id].isMember(client)) {
 			std::cout << "you are not on that channel" << std::endl;
 			return ;
 		}
@@ -141,7 +144,7 @@ void	Messages::privMsg(Client *client, std::string msg, std::vector<Client *> cl
 		_RPL = msg;
 		_RPLtarget = channels[id].getMembers();
 		for (size_t i = 0; i < _RPLtarget.size(); i++) {
-			if (_RPLtarget[i] == client->getNick()) {
+			if (_RPLtarget[i] == client) {
 				_RPLtarget.erase(_RPLtarget.begin() + i);
 				break ;
 			}
@@ -156,7 +159,7 @@ void	Messages::privMsg(Client *client, std::string msg, std::vector<Client *> cl
 		for (size_t i = 0; i < clients.size(); i++) {
 			if (clients[i]->getNick() == target) {  // CASE INSENSITIVE!!
 				_RPL = msg;
-				_RPLtarget.push_back(target);
+				_RPLtarget.push_back(clients[i]);
 				return;
 			}
 		}
@@ -164,7 +167,7 @@ void	Messages::privMsg(Client *client, std::string msg, std::vector<Client *> cl
 		std::cout << "dm target not found" << std::endl;
 		std::string err = "401 127.0.0.1 " + target + " " + client->getNick() + " :No such nick/channel\r\n";
 		_RPL = err;
-		_RPLtarget.push_back(client->getNick());
+		_RPLtarget.push_back(client);
 	}
 }
 
@@ -191,7 +194,7 @@ void	Messages::partMsg(Client *client, std::string msg, std::vector<Client *> cl
 	if (msg.find(':', 0) != std::string::npos)
 		partMsg = msg.substr(msg.find(':', 0) - 1, std::string::npos);
 	else
-		partMsg = "\r\n";
+		partMsg = "\r\n";  //+nickname ?
 
 	// DOIT tolower() LES CHANS !!
 
@@ -202,11 +205,12 @@ void	Messages::partMsg(Client *client, std::string msg, std::vector<Client *> cl
 			if (channels[j].getName() == chans[i])
 				break;
 		if (j < channels.size()) {
-			if (channels[j].isMember(client->getNick())) {
-				std::string reply = ":" + client->getNick() + " PART #" + chans[i] + partMsg;
+			if (channels[j].isMember(client)) {
+				// s'affiche correctement mais close pas la tab
+				std::string reply = ":" + client->getNick() + "!" + client->getUser() + "@127.0.0.1" + " PART #" + chans[i] + partMsg;
 				_RPL = reply;
 				_RPLtarget = channels[j].getMembers();
-				channels[j].rmMember(client->getNick());
+				channels[j].rmMember(client);
 				// if members == 0 delete channel ????
 			}
 			else
@@ -219,8 +223,19 @@ void	Messages::partMsg(Client *client, std::string msg, std::vector<Client *> cl
 
 void	Messages::quitMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
-	(void)client;
-	(void)msg;
-	(void)clients;
 	(void)channels;
+
+	std::string quitMsg = msg.substr(msg.find("QUIT :", 0) + 4, std::string::npos);
+	
+	_RPL = ":" + client->getNick() + "!" + client->getUser() + "@127.0.0.1 QUIT" + quitMsg;
+	_RPLtarget = clients;
+
+	for (size_t i = 0; i < _RPLtarget.size(); i++) {
+		if (_RPLtarget[i] == client) {
+			_RPLtarget.erase(_RPLtarget.begin() + i);
+			break;
+		}
+	}
+	if (_RPLtarget.size() == 0)
+		_RPL.clear();
 }
