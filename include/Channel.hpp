@@ -1,6 +1,7 @@
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
 
+# include "Client.hpp"
 # include <string>
 # include <vector>
 
@@ -14,11 +15,11 @@ class Channel {
 		std::string		_password;    	// -k
 		int				_userLimit;   	// -l
 		// mettre les *Client
-		std::vector<std::string>	_operators; // -o
-		std::vector<std::string>	_members;   //save nickname
+		std::vector<Client *>	_operators; // -o
+		std::vector<Client *>	_members;   //save nickname
 
 	public :
-		Channel(std::string name, std::string creator);  //envoyer password?
+		Channel(std::string name, Client *creator);  //envoyer password?
 		~Channel();
 
 		std::string	getName() const;  //pas de setter
@@ -33,15 +34,15 @@ class Channel {
 		int			getUserLimit() const;
 		void		setUserLimit(int limit);
 
-		std::vector<std::string> getMembers() const;
+		std::vector<Client *> getMembers() const;
 
-		void		addOperator(std::string nickname);
-		void		rmOperator(std::string nickname);
-		bool		isOperator(std::string nickname) const;
+		void		addOperator(Client *client);
+		void		rmOperator(Client *client);
+		bool		isOperator(Client *client) const;
 
-		void		addMember(std::string nickname);
-		void		rmMember(std::string nickname);
-		bool		isMember(std::string nickname) const;
+		void		addMember(Client *client);
+		void		rmMember(Client *client);
+		bool		isMember(Client *client) const;
 
 };
 
