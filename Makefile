@@ -28,6 +28,14 @@ SRCS_FILES = main.cpp \
 			 Server.cpp \
 			 Client.cpp \
 			 Messages.cpp \
+			 MsgJoin.cpp \
+			 MsgMode.cpp \
+			 MsgNick.cpp \
+			 MsgPart.cpp \
+			 MsgPing.cpp \
+			 MsgPrivmsg.cpp \
+			 MsgQuit.cpp \
+			 MsgTopic.cpp \
 			 Channel.cpp
 SRCS = $(SRCS_FILES:%=$(SRCS_DIR)/%)
 
