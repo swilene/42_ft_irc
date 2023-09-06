@@ -20,6 +20,7 @@ void	Messages::topicMsg(Client *client, std::string msg, std::vector<Client *> c
 				std::string reply = ":" + client->getNick() + "!" + client->getUser() + "@127.0.0.1" + " TOPIC #" + chan + topic;
 				_RPL = reply;
 				_RPLtarget = channels[i].getMembers();
+				channels[i].setTopic(topic.erase(0, 2));
 				return ;
 			}
 			std::cout << "not operator error" << std::endl; return;

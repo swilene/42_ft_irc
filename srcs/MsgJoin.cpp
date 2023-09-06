@@ -25,5 +25,7 @@ void	Messages::joinMsg(Client *client, std::string msg, std::vector<Client *> cl
 		channels[i].addMember(client);
 		_RPL = ":" + client->getNick() + "!" + client->getUser() + "@127.0.0.1" + " JOIN #" + name + "\r\n";
 		_RPLtarget.push_back(client);
+		if (!channels[i].getTopic().empty())  // mauvaise tab ??
+			_RPL += ":127.0.0.1 332 " + client->getNick() + " " + name + " :" + channels[i].getTopic() + "\r\n";
 	}
 }
