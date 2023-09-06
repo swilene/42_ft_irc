@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 12:03:00 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/29 19:35:30 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/09/06 14:08:32 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,12 @@ std::vector<Client *> Messages::getRPLtarget() const { return _RPLtarget; }
 void Messages::parseMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
 	std::string cmd = msg.substr(0, msg.find(" ", 0));
-	std::string msgs[6] = {"PING", "MODE", "JOIN", "PRIVMSG", "PART", "QUIT"};
+	std::string msgs[7] = {"PING", "MODE", "JOIN", "PRIVMSG", "PART", "QUIT", "NICK"};
 
-	void (Messages::*m[6])(Client *, std::string, std::vector<Client *>, std::vector<Channel>&) = {&Messages::pingMsg,
-		&Messages::modeMsg, &Messages::joinMsg, &Messages::privMsg, &Messages::partMsg, &Messages::quitMsg};
+	void (Messages::*m[7])(Client *, std::string, std::vector<Client *>, std::vector<Channel>&) = {&Messages::pingMsg,
+		&Messages::modeMsg, &Messages::joinMsg, &Messages::privMsg, &Messages::partMsg, &Messages::quitMsg, &Messages::nickMsg};
 
-	for (int i = 0; i < 6; i++) {
+	for (int i = 0; i < 7; i++) {
 		if (msgs[i] == cmd)
 			(this->*m[i])(client, msg, clients, channels);
 	}
@@ -238,4 +238,24 @@ void	Messages::quitMsg(Client *client, std::string msg, std::vector<Client *> cl
 	}
 	if (_RPLtarget.size() == 0)
 		_RPL.clear();
+}
+
+void Messages::nickMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels)
+{
+	(void)channels;
+
+	std::cout << "debug: nick msg" << std::endl;
+	msg.erase(0, 5);
+	msg.erase(msg.size() - 2, 2);
+	if (msg[0] == '#' || msg[0] == '&' || msg[0] == '@' || msg[0] == '!' || msg[0] == '%' || msg[0] == '*' || msg[0] == '(' || msg[0] == ')')
+		_RPL = ERR_ERRONEUSNICKNAME(client->getNick(), msg);
+	for (size_t i = 0; i < clients.size(); i++) {
+		if (client->getNick() != clients[i]->getNick() && clients[i]->getNick() == msg)
+			_RPL = ERR_NICKNAMEINUSE(client->getNick(), msg);
+	}
+	if (_RPL.empty()) {
+		_RPL = NICK(client->getNick(), client->getUser(), msg);
+		client->setNick(msg);
+	}
+	_RPLtarget.push_back(client);
 }
