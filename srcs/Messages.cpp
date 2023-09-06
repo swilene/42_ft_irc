@@ -22,12 +22,12 @@ std::vector<Client *> Messages::getRPLtarget() const { return _RPLtarget; }
 void Messages::parseMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
 	std::string cmd = msg.substr(0, msg.find(" ", 0));
-	std::string msgs[6] = {"PING", "MODE", "JOIN", "PRIVMSG", "PART", "QUIT"};
+	std::string msgs[7] = {"PING", "MODE", "JOIN", "PRIVMSG", "PART", "QUIT", "NICK"};
 
-	void (Messages::*m[6])(Client *, std::string, std::vector<Client *>, std::vector<Channel>&) = {&Messages::pingMsg,
-		&Messages::modeMsg, &Messages::joinMsg, &Messages::privMsg, &Messages::partMsg, &Messages::quitMsg};
+	void (Messages::*m[7])(Client *, std::string, std::vector<Client *>, std::vector<Channel>&) = {&Messages::pingMsg,
+		&Messages::modeMsg, &Messages::joinMsg, &Messages::privMsg, &Messages::partMsg, &Messages::quitMsg, &Messages::nickMsg};
 
-	for (int i = 0; i < 6; i++) {
+	for (int i = 0; i < 7; i++) {
 		if (msgs[i] == cmd)
 			(this->*m[i])(client, msg, clients, channels);
 	}
@@ -105,13 +105,13 @@ void	Messages::joinMsg(Client *client, std::string msg, std::vector<Client *> cl
 	size_t		i = 0;
 
 	while (i < channels.size()) {
-		if (channels[i].getName() == name)
+		if (channels[i].getName() == lowercase(name))
 			break;
 		i++;
 	}
 	if (i == channels.size() || channels.size() == 0)
 	{
-		Channel newchan(name, client);
+		Channel newchan(lowercase(name), client);
 		channels.push_back(newchan);
 		_RPL = ":" + client->getNick() + "!" + client->getUser() + "@127.0.0.1" + " JOIN #" + name + "\r\n";
 		_RPLtarget.push_back(client);
@@ -128,7 +128,7 @@ void	Messages::privMsg(Client *client, std::string msg, std::vector<Client *> cl
 {
 	if (msg[8] == '#') {  // == channel msg
 		std::string chan = msg.substr(msg.find("#", 0) + 1, std::string::npos);  // juste [8] ?
-		chan = chan.substr(0, chan.find(":", 0) - 1);
+		chan = lowercase(chan.substr(0, chan.find(":", 0) - 1));
 
 		size_t id = 0;
 		while (id < channels.size() && channels[id].getName() != chan)
@@ -157,7 +157,7 @@ void	Messages::privMsg(Client *client, std::string msg, std::vector<Client *> cl
 		msg = ":" + client->getNick() + " " + msg;
 
 		for (size_t i = 0; i < clients.size(); i++) {
-			if (clients[i]->getNick() == target) {  // CASE INSENSITIVE!!
+			if (lowercase(clients[i]->getNick()) == lowercase(target)) {  // CASE INSENSITIVE!!
 				_RPL = msg;
 				_RPLtarget.push_back(clients[i]);
 				return;
@@ -202,7 +202,7 @@ void	Messages::partMsg(Client *client, std::string msg, std::vector<Client *> cl
 	for (size_t i = 0; i < chans.size(); i++) {
 		size_t j;
 		for (j = 0; j < channels.size(); j++)
-			if (channels[j].getName() == chans[i])
+			if (channels[j].getName() == lowercase(chans[i]))
 				break;
 		if (j < channels.size()) {
 			if (channels[j].isMember(client)) {
@@ -238,4 +238,35 @@ void	Messages::quitMsg(Client *client, std::string msg, std::vector<Client *> cl
 	}
 	if (_RPLtarget.size() == 0)
 		_RPL.clear();
+}
+
+void Messages::nickMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels)
+{
+	(void)channels;
+
+	std::cout << "debug: nick msg" << std::endl;
+	msg.erase(0, 5);
+	msg.erase(msg.size() - 2, 2);
+	if (msg[0] == '#' || msg[0] == '&' || msg[0] == '@' || msg[0] == '!' || msg[0] == '%' || msg[0] == '*' || msg[0] == '(' || msg[0] == ')')
+	{
+		_RPL = ERR_ERRONEUSNICKNAME(client->getNick(), msg);
+		std::cout << "err: " << _RPL << std::endl;
+	}
+	for (size_t i = 0; i < clients.size(); i++) {
+		if (client->getNick() != clients[i]->getNick() && clients[i]->getNick() == msg)
+			_RPL = ERR_NICKNAMEINUSE(client->getNick(), msg);
+	}
+	if (_RPL.empty()) {
+		_RPL = NICK(client->getNick(), client->getUser(), msg);
+		client->setNick(msg);
+	}
+	_RPLtarget.push_back(client);
+}
+
+std::string	Messages::lowercase(std::string str)
+{
+	for (size_t i = 0; i < str.size(); i++)
+		str[i] = tolower(str[i]);
+	
+	return (str);
 }
