@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 12:03:00 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/29 19:35:30 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/09/06 14:08:32 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,4 +81,24 @@ std::string	Messages::lowercase(std::string str)
 		str[i] = tolower(str[i]);
 	
 	return (str);
+}
+
+void Messages::nickMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels)
+{
+	(void)channels;
+
+	std::cout << "debug: nick msg" << std::endl;
+	msg.erase(0, 5);
+	msg.erase(msg.size() - 2, 2);
+	if (msg[0] == '#' || msg[0] == '&' || msg[0] == '@' || msg[0] == '!' || msg[0] == '%' || msg[0] == '*' || msg[0] == '(' || msg[0] == ')')
+		_RPL = ERR_ERRONEUSNICKNAME(client->getNick(), msg);
+	for (size_t i = 0; i < clients.size(); i++) {
+		if (client->getNick() != clients[i]->getNick() && clients[i]->getNick() == msg)
+			_RPL = ERR_NICKNAMEINUSE(client->getNick(), msg);
+	}
+	if (_RPL.empty()) {
+		_RPL = NICK(client->getNick(), client->getUser(), msg);
+		client->setNick(msg);
+	}
+	_RPLtarget.push_back(client);
 }
