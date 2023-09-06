@@ -52,7 +52,7 @@ void Messages::registerMsg(Client *client)
 	while (fullbuf.find("USER", 0) == std::string::npos) {
 		ssize_t recvd = recv(client->getFd(), buf, sizeof(buf), 0);
 		if (recvd < 0)
-			std::cout << "Error recv()" << std::endl;
+			std::cout << "Error recv()" << std::endl; //return ?
 		buf[recvd] = '\0';
 		fullbuf += buf;
 	}
@@ -194,7 +194,7 @@ void	Messages::partMsg(Client *client, std::string msg, std::vector<Client *> cl
 	if (msg.find(':', 0) != std::string::npos)
 		partMsg = msg.substr(msg.find(':', 0) - 1, std::string::npos);
 	else
-		partMsg = "\r\n";
+		partMsg = "\r\n";  //+nickname ?
 
 	// DOIT tolower() LES CHANS !!
 
@@ -223,8 +223,19 @@ void	Messages::partMsg(Client *client, std::string msg, std::vector<Client *> cl
 
 void	Messages::quitMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
-	(void)client;
-	(void)msg;
-	(void)clients;
 	(void)channels;
+
+	std::string quitMsg = msg.substr(msg.find("QUIT :", 0) + 4, std::string::npos);
+	
+	_RPL = ":" + client->getNick() + "!" + client->getUser() + "@127.0.0.1 QUIT" + quitMsg;
+	_RPLtarget = clients;
+
+	for (size_t i = 0; i < _RPLtarget.size(); i++) {
+		if (_RPLtarget[i] == client) {
+			_RPLtarget.erase(_RPLtarget.begin() + i);
+			break;
+		}
+	}
+	if (_RPLtarget.size() == 0)
+		_RPL.clear();
 }
