@@ -3,6 +3,7 @@
 Channel::Channel(std::string name, Client *creator) : _name(name)
 {
 	_members.push_back(creator);
+	_operators.push_back(creator);
 	// verif param de bases
 	_inviteOnly = false;
 	_topicRights = false;
@@ -13,8 +14,8 @@ Channel::~Channel() {}
 
 std::string	Channel::getName() const { return _name; }
 
-std::string	Channel::getTopic() const { return _topic; }
-void		Channel::setTopic(std::string topic) { _topic = topic; }
+// std::string	Channel::getTopic() const { return _topic; }
+// void		Channel::setTopic(std::string topic) { _topic = topic; }
 
 bool		Channel::getInviteOnly() const { return _inviteOnly; }
 void		Channel::setInviteOnly(bool mode) { _inviteOnly = mode; }
