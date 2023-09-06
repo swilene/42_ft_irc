@@ -9,7 +9,7 @@ class Channel {
 
 	private :
 		std::string		_name;
-		std::string		_topic;
+		// std::string		_topic;
 		bool			_inviteOnly;  	// -i
 		bool			_topicRights; 	// -t
 		std::string		_password;    	// -k
@@ -23,8 +23,8 @@ class Channel {
 		~Channel();
 
 		std::string	getName() const;  //pas de setter
-		std::string	getTopic() const;
-		void		setTopic(std::string topic);
+		// std::string	getTopic() const;
+		// void		setTopic(std::string topic);
 		bool		getInviteOnly() const;
 		void		setInviteOnly(bool mode);
 		bool		getTopicRights() const;
