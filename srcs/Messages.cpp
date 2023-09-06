@@ -244,7 +244,6 @@ void Messages::nickMsg(Client *client, std::string msg, std::vector<Client *> cl
 {
 	(void)channels;
 
-	std::cout << "debug: nick msg" << std::endl;
 	msg.erase(0, 5);
 	msg.erase(msg.size() - 2, 2);
 	if (msg[0] == '#' || msg[0] == '&' || msg[0] == '@' || msg[0] == '!' || msg[0] == '%' || msg[0] == '*' || msg[0] == '(' || msg[0] == ')')
@@ -253,7 +252,7 @@ void Messages::nickMsg(Client *client, std::string msg, std::vector<Client *> cl
 		std::cout << "err: " << _RPL << std::endl;
 	}
 	for (size_t i = 0; i < clients.size(); i++) {
-		if (client->getNick() != clients[i]->getNick() && clients[i]->getNick() == msg)
+		if (client->getNick() != clients[i]->getNick() && lowercase(clients[i]->getNick()) == lowercase(msg))
 			_RPL = ERR_NICKNAMEINUSE(client->getNick(), msg);
 	}
 	if (_RPL.empty()) {
