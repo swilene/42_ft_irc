@@ -49,15 +49,15 @@ class Messages
 {
 	private:
 		std::string _servername, _version;
-		std::string	_RPL;
-		std::vector<Client *>_RPLtarget;
+		std::vector<std::string>			_RPL;
+		std::vector<std::vector<Client *>>	_RPLtarget;
 
 	public:
 		Messages();
 		~Messages();
 
-		std::string				getRPL() const;
-		std::vector<Client *>	getRPLtarget() const;
+		std::vector<std::string>			getRPL() const;
+		std::vector<std::vector<Client *>>	getRPLtarget() const;
 
 		void	parseMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	sendRPL(Client *client);
