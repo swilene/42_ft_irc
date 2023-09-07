@@ -60,7 +60,7 @@ void Server::mainLoop()
 		//if reply to send
 		if (!_msg.getRPL().empty()) {
 			for (size_t i = 1; i < _pollfdClients.size(); i++) {
-				if (_msg.getRPLtarget()[0][0] == _clients[i - 1] && _pollfdClients[i].revents & POLLOUT) {
+				if (_msg.getRPL().begin()->second[0] == _clients[i - 1] && _pollfdClients[i].revents & POLLOUT) {
 					_msg.sendRPL(_clients[i - 1]);
 					break;
 				}

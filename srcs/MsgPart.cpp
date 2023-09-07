@@ -38,8 +38,9 @@ void	Messages::partMsg(Client *client, std::string msg, std::vector<Client *> cl
 			if (channels[j].isMember(client)) {
 				// s'affiche correctement mais close pas la tab
 				std::string reply = ":" + client->getNick() + "!" + client->getUser() + "@127.0.0.1" + " PART #" + chans[i] + partMsg;
-				_RPL = reply;
-				_RPLtarget = channels[j].getMembers();
+				// _RPL = reply;
+				// _RPLtarget = channels[j].getMembers();
+				_RPL[reply] = channels[j].getMembers();
 				channels[j].rmMember(client);
 				// if members == 0 delete channel ????
 			}

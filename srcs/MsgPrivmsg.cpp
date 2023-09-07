@@ -17,16 +17,17 @@ void	Messages::privMsg(Client *client, std::string msg, std::vector<Client *> cl
 			return ;
 		}
 
-		_RPL = msg;
-		_RPLtarget = channels[id].getMembers();
-		for (size_t i = 0; i < _RPLtarget.size(); i++) {
-			if (_RPLtarget[i] == client) {
-				_RPLtarget.erase(_RPLtarget.begin() + i);
+		// _RPL = msg;
+		// _RPLtarget = channels[id].getMembers();
+		_RPL[msg] = channels[id].getMembers();
+		for (size_t i = 0; i < _RPL[msg].size(); i++) {
+			if (_RPL[msg][i] == client) {
+				_RPL[msg].erase(_RPL[msg].begin() + i);
 				break ;
 			}
 		}
-		if (_RPLtarget.size() == 0)
-			_RPL.clear();
+		if (_RPL[msg].size() == 0)
+			_RPL.clear();  // clear toute la map car pas plusieurs cmd normalement
 	}
 	else {  // == dm
 		std::string target = msg.substr(8, msg.find(' ', 9) - 8);
@@ -34,15 +35,17 @@ void	Messages::privMsg(Client *client, std::string msg, std::vector<Client *> cl
 
 		for (size_t i = 0; i < clients.size(); i++) {
 			if (lowercase(clients[i]->getNick()) == lowercase(target)) {  // CASE INSENSITIVE!!
-				_RPL = msg;
-				_RPLtarget.push_back(clients[i]);
+				// _RPL = msg;
+				// _RPLtarget.push_back(clients[i]);
+				_RPL[msg].push_back(clients[i]);
 				return;
 			}
 		}
 		// HANDLE ERROR (nick doesnt exist)
 		std::cout << "dm target not found" << std::endl;
 		std::string err = "401 127.0.0.1 " + target + " " + client->getNick() + " :No such nick/channel\r\n";
-		_RPL = err;
-		_RPLtarget.push_back(client);
+		// _RPL = err;
+		// _RPLtarget.push_back(client);
+		_RPL[err].push_back(client);
 	}
 }

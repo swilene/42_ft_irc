@@ -75,6 +75,7 @@ void	Messages::join2(Client *client, std::vector<Channel> &channels, std::string
 	(void)pw; // a faire
 
 	size_t		i = 0;
+	std::string	mainRpl;  // full RPL for new member
 
 	while (i < channels.size()) {
 		if (channels[i].getName() == lowercase(chan))
@@ -84,26 +85,29 @@ void	Messages::join2(Client *client, std::vector<Channel> &channels, std::string
 	if (i == channels.size() || channels.size() == 0) {
 		Channel newchan(lowercase(chan), client);
 		channels.push_back(newchan);
-		_RPL += JOIN(client->getNick(), client->getUser(), chan);
-		_RPLtarget.push_back(client);
+		// _RPL += JOIN(client->getNick(), client->getUser(), chan);
+		// _RPLtarget.push_back(client);
+		mainRpl = JOIN(client->getNick(), client->getUser(), chan);
 	}
 	else {
 		channels[i].addMember(client);
-		_RPL += JOIN(client->getNick(), client->getUser(), chan);
-		_RPLtarget.push_back(client);
+		// _RPL += JOIN(client->getNick(), client->getUser(), chan);
+		// _RPLtarget.push_back(client);
 		// _RPLtarget = channels[i].getMembers();  // PB A REGLER
+		_RPL[JOIN(client->getNick(), client->getUser(), chan)] = channels[i].getMembers();
 	}
 	// RPL_TOPIC
 	if (!channels[i].getTopic().empty())
-		_RPL += RPL_TOPIC(client->getNick(), chan, channels[i].getTopic());
+		mainRpl += RPL_TOPIC(client->getNick(), chan, channels[i].getTopic());
 	// RPL_NAMREPLY
-	_RPL += ":127.0.0.1 353 " + client->getNick() + " = #" + chan + " :";
+	mainRpl += ":127.0.0.1 353 " + client->getNick() + " = #" + chan + " :";
 	for (size_t j = 0; j < channels[i].getMembers().size(); j++) {
 		if (channels[i].isOperator(channels[i].getMembers()[j]))  //==is ope
-			_RPL += "@";
-		_RPL += channels[i].getMembers()[j]->getNick() + " ";  // c moche
+			mainRpl += "@";
+		mainRpl += channels[i].getMembers()[j]->getNick() + " ";  // c moche
 	}
-	_RPL += "\r\n";
+	mainRpl += "\r\n";
 	// RPL_ENDOFNAMES
-	_RPL += RPL_ENDOFNAMES(client->getNick(), chan);
+	mainRpl += RPL_ENDOFNAMES(client->getNick(), chan);
+	_RPL[mainRpl].push_back(client);
 }
