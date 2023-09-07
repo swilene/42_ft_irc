@@ -91,6 +91,7 @@ void	Messages::join2(Client *client, std::vector<Channel> &channels, std::string
 		channels[i].addMember(client);
 		_RPL += JOIN(client->getNick(), client->getUser(), chan);
 		_RPLtarget.push_back(client);
+		// _RPLtarget = channels[i].getMembers();  // PB A REGLER
 	}
 	// RPL_TOPIC
 	if (!channels[i].getTopic().empty())
