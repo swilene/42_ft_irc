@@ -28,6 +28,7 @@ void	Messages::partMsg(Client *client, std::string msg, std::vector<Client *> cl
 	// DOIT tolower() LES CHANS !!
 
 	// leave parsed channels
+	// BROKEN !!!! Gere mal le multi chan !!!!
 	for (size_t i = 0; i < chans.size(); i++) {
 		size_t j;
 		for (j = 0; j < channels.size(); j++)
