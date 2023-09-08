@@ -6,8 +6,7 @@ void Messages::nickMsg(Client *client, std::string msg, std::vector<Client *> cl
 
 	msg.erase(0, 5);
 	msg.erase(msg.size() - 2, 2);
-	if (msg[0] == '#' || msg[0] == '&' || msg[0] == '@' || msg[0] == '!' || msg[0] == '%' || msg[0] == '*' || msg[0] == '(' || msg[0] == ')')
-	{
+	if (msg.find_first_of("#&@!%*()") == 0 || msg.find(',') != std::string::npos) {
 		_RPL[ERR_ERRONEUSNICKNAME(client->getNick(), msg)].push_back(client);
 		return ;
 	}
