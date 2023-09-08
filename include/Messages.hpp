@@ -34,6 +34,7 @@
 #define PART(nick, user, chan, partmsg) (":" + nick + "!" + user + "@127.0.0.1 PART #" + chan + partmsg)
 #define PRIVMSG(nick, msg) (":" + nick + " " + msg)
 #define TOPIC(nick, user, chan, topic) (":" + nick + "!" + user + "@127.0.0.1 TOPIC #" + chan + topic)
+#define INVITE(nick, user, nick2, chan) (":" + nick + "!" + user + "@127.0.0.1 INVITE " + nick2 + " #" + chan + "\r\n")
 #define QUIT(nick, user, quitMsg) (":" + nick + "!" + user + "@127.0.0.1 QUIT" + quitMsg)
 
 #define ERR_NOSUCHNICK(target, nick) ("401 127.0.0.1 " + target + " " + nick + " :No such nick/channel\r\n")
@@ -42,13 +43,15 @@
 #define ERR_ERRONEUSNICKNAME(nick, newnick) (":127.0.0.1 432 " + nick + " :Erroneus nickname: " + newnick + "\r\n")
 #define ERR_NICKNAMEINUSE(nick, newnick) (":127.0.0.1 433 " + nick + " " + newnick + " :Nickname is already in use\r\n")
 #define ERR_NOTONCHANNEL(nick, chan) (":127.0.0.1 442 " + nick + " #" + chan + " :You're not on that channel\r\n")
+#define ERR_USERONCHANNEL(nick, nick2, chan) (":127.0.0.1 443 " + nick + " " + nick2 + " #" + chan + " :is already on channel\r\n")
 #define ERR_INVITEONLYCHAN(nick, chan) (":127.0.0.1 473 " + nick + " #" + chan + " :Cannot join channel (+i)\r\n")
 #define ERR_BADCHANNELKEY(nick, chan) (":127.0.0.1 475 " + nick + " #" + chan + " :Cannot join channel (+k)\r\n")
 #define ERR_CHANOPRIVSNEEDED(nick, chan) (":127.0.0.1 482 " + nick + " #" + chan + " :You're not channel operator\r\n")
 
 #define RPL_NOTOPIC(nick, chan) (":127.0.0.1 331 " + nick + " #" + chan + " :No topic is set\r\n")
 #define RPL_TOPIC(nick, chan, topic) (":127.0.0.1 332 " + nick + " #" + chan + " :" + topic + "\r\n")
-#define RPL_ENDOFNAMES(nick, chan) (":127.0.0.1 366 " + client->getNick() + " #" + chan + " :End of NAMES list\r\n")
+#define RPL_ENDOFNAMES(nick, chan) (":127.0.0.1 366 " + nick + " #" + chan + " :End of NAMES list\r\n")
+#define RPL_INVITING(nick, nick2, chan) (":127.0.0.1 341 " + nick + " #" + chan + " " + nick2 + "\r\n")
 
 
 class Server;
@@ -78,6 +81,7 @@ class Messages
 		void	quitMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	nickMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	topicMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
+		void	inviteMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 
 		std::string	lowercase(std::string str);
 };
