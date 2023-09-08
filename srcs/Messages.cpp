@@ -39,7 +39,7 @@ void Messages::sendRPL(Client *client)
 	
 	send(client->getFd(), rpl->first.c_str(), rpl->first.size(), 0);
 
-	std::cout << " SENDING [" << rpl->first.substr(0, rpl->first.size() - 2) << "\\r\\n] TO [" << client->getNick() << "]" << std::endl; 
+	std::cout << " SENDING [" << rpl->first.substr(0, rpl->first.size() - 2) << "\\r\\n] TO [" << client->getNick() << "]" << std::endl << std::endl; 
 
 	rpl->second.erase(rpl->second.begin());
 	if (rpl->second.size() == 0)
@@ -54,7 +54,7 @@ void Messages::registerMsg(Client *client)
 	while (fullbuf.find("USER", 0) == std::string::npos) {
 		ssize_t recvd = recv(client->getFd(), buf, sizeof(buf), 0);
 		if (recvd < 0)
-			std::cout << "Error recv()" << std::endl; //return ?
+			std::cout << "Error recv()" << std::endl; //return ? //faudrait throw() qqchose
 		buf[recvd] = '\0';
 		fullbuf += buf;
 	}
