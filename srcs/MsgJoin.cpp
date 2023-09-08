@@ -52,9 +52,11 @@ void	Messages::join2(Client *client, std::vector<Channel> &channels, std::string
 		mainRpl = JOIN(client->getNick(), client->getUser(), chan);
 	}
 	else {  //check for pw and invite-only
-		if (channels[i].getInviteOnly() == true) {  // Check avant ou apres PW ?
+		if (channels[i].getInviteOnly() == true) {  // && NOT INVITED) // Check avant ou apres PW ?
 			_RPL[ERR_INVITEONLYCHAN(client->getNick(), chan)].push_back(client); return;   // PAS TESTER
 		}
+		// MUST SAVE INVITE LIST AS Client*  (nick change)
+		// IF JOIN AFTER INVITE -> REMOVE FROM INVITE LIST
 		if (channels[i].getPassword().empty() || channels[i].getPassword() == pw) {
 			channels[i].addMember(client);
 			_RPL[JOIN(client->getNick(), client->getUser(), chan)] = channels[i].getMembers();
