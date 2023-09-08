@@ -77,18 +77,47 @@ void		Channel::rmMember(Client *client)
 		}
 	}
 	// if member is also op
-	for (size_t i = 0; i < _operators.size(); i++) {
-		if (_operators[i] == client) {
-			_operators.erase(_operators.begin() + i);
-			return;
-		}
-	}
+	rmOperator(client);
+	// for (size_t i = 0; i < _operators.size(); i++) {
+	// 	if (_operators[i] == client) {
+	// 		_operators.erase(_operators.begin() + i);
+	// 		return;
+	// 	}
+	// }
 }
 
 bool		Channel::isMember(Client *client) const
 {
 	for (size_t i = 0; i < _members.size(); i++) {
 		if (_members[i] == client)
+			return true;
+	}
+	return false;
+}
+
+void		Channel::addInvited(Client *client)
+{
+	for (size_t i = 0; i < _invited.size(); i++) {
+		if (_invited[i] == client)
+			return ;
+	}
+	_invited.push_back(client);
+}
+
+void		Channel::rmInvited(Client *client)
+{
+	for (size_t i = 0; i < _invited.size(); i++) {
+		if (_invited[i] == client) {
+			_invited.erase(_invited.begin() + i);
+			return ;
+		}
+	}
+}
+
+bool		Channel::isInvited(Client *client) const
+{
+	for (size_t i = 0; i < _invited.size(); i++) {
+		if (_invited[i] == client)
 			return true;
 	}
 	return false;

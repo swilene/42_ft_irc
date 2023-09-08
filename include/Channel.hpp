@@ -17,6 +17,7 @@ class Channel {
 		// mettre les *Client
 		std::vector<Client *>	_operators; // -o
 		std::vector<Client *>	_members;   //save nickname
+		std::vector<Client *>	_invited;
 
 	public :
 		Channel(std::string name, Client *creator);  //envoyer password?
@@ -43,6 +44,10 @@ class Channel {
 		void		addMember(Client *client);
 		void		rmMember(Client *client);
 		bool		isMember(Client *client) const;
+
+		void		addInvited(Client *client);
+		void		rmInvited(Client *client);
+		bool		isInvited(Client *client) const;
 
 };
 

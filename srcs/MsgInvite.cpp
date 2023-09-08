@@ -39,6 +39,8 @@ void	Messages::inviteMsg(Client *client, std::string msg, std::vector<Client *> 
 	}
 
 	// send invite
+	channels[j].addInvited(clients[i]);
+
 	_RPL[RPL_INVITING(client->getNick(), nick, chan)].push_back(client);
 	_RPL[INVITE(client->getNick(), client->getUser(), nick, lowercase(chan))].push_back(clients[i]);
 }
