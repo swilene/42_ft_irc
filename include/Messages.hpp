@@ -26,7 +26,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-#define WELCOME(nick, user) (":127.0.0.1 001 " + nick + " Welcome to the Internet Relay Network " + nick + "!" + user + "@127.0.0.1\r\n") 
+#define WELCOME(nick, user) (":127.0.0.1 001 " + nick + " :Welcome to the Internet Relay Network " + nick + "!" + user + "@127.0.0.1\r\n") 
 #define PONG(server) ("PONG " + server + "\r\n")
 #define NICK(nick, user, newnick) (":" + nick + "!" + user + "@127.0.0.1 NICK " + newnick + "\r\n")
 #define MODE(nick, user, channel, mode) (":" + nick + "!" + user + "@127.0.0.1 MODE " + channel + " " + mode + "\r\n")

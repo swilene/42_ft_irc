@@ -63,8 +63,19 @@ void Messages::registerMsg(Client *client)
 	nick = nick.substr(nick.find("NICK ", 0) + 5, std::string::npos);
 	nick = nick.substr(0, nick.find("\r\n", 0));
 	// tmp, gerer les doublons de NICK
-	if (client->getFd() > 4)
+	if (client->getFd() > 4) {
+		//// A FAIRE, doit envoyer ERR_NICKNAMEINUSE
+		// std::string nicktest = ERR_NICKNAMEINUSE(nick, nick + "_");
+		// send(client->getFd(), nicktest.c_str(), nicktest.size(), 0);
+
+		// char buf2[256];
+		// ssize_t recvd2 = recv(client->getFd(), buf2, sizeof(buf2), 0);
+		// buf2[recvd2] = '\0';
+		// std::cout << "NEW BUF? = " << buf2 << std::endl;
+		// nick += "_";
+
 		nick += client->getFd() + 48;
+	}
 	client->setNick(nick);
 
 	std::string user = fullbuf;
@@ -73,6 +84,13 @@ void Messages::registerMsg(Client *client)
 	client->setUser(user);
 
 	_RPL[WELCOME(client->getNick(), client->getUser())].push_back(client);
+	//// TEST, necessaire ??
+	// std::string fullrpl = WELCOME(client->getNick(), client->getUser());
+	// fullrpl += ":127.0.0.1 002 " + nick + " :Your host is 127.0.0.1, running version ircd-ratbox-3.0.10\r\n";
+	// fullrpl += ":127.0.0.1 003 " + nick + " :This server was created Sun Oct 2 2016 at 04:55:27 CEST\r\n";
+	// fullrpl += ":127.0.0.1 004 " + nick + " :127.0.0.1 ircd-ratbox-3.0.10 oiwszcrkfydnxbauglZCD biklmnopstveIrS bkloveI\r\n";
+
+	// _RPL[fullrpl].push_back(client);
 }
 
 std::string	Messages::lowercase(std::string str)
