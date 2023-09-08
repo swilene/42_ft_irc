@@ -17,7 +17,6 @@ Messages::Messages() : _servername("localhost"), _version("1.1") {}
 Messages::~Messages() {}
 
 std::map<std::string, std::vector<Client *> >	Messages::getRPL() const { return _RPL; }
-// std::vector<std::vector<Client *>> Messages::getRPLtarget() const { return _RPLtarget; }
 
 void Messages::parseMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
@@ -36,17 +35,6 @@ void Messages::parseMsg(std::string msg, Client *client, std::vector<Client *> c
 
 void Messages::sendRPL(Client *client)
 {
-	// send(client->getFd(), _RPL[0].c_str(), _RPL[0].size(), 0);
-
-	// std::cout << " SENDING [" << _RPL[0].substr(0, _RPL[0].size() - 2) << "\\r\\n] TO [" << client->getNick() << "]" << std::endl; 
-	
-	// _RPLtarget[0].erase(_RPLtarget[0].begin());
-	// if (_RPLtarget[0].size() == 0) {
-	// 	_RPLtarget.erase(_RPLtarget.begin());
-	// 	_RPL.erase(_RPL.begin());
-	// }
-
-	// MAP
 	std::map<std::string, std::vector<Client *> >::iterator	rpl = _RPL.begin();
 	
 	send(client->getFd(), rpl->first.c_str(), rpl->first.size(), 0);

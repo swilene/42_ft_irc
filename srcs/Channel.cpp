@@ -33,7 +33,6 @@ std::vector<Client *> Channel::getMembers() const { return _members; }
 
 void		Channel::addOperator(Client *client)
 {
-	// case sensitive ? a verif
 	for (size_t i = 0; i < _operators.size(); i++) {
 		if (_operators[i] == client)
 			return ;
@@ -46,7 +45,7 @@ void		Channel::rmOperator(Client *client)
 	for (size_t i = 0; i < _operators.size(); i++) {
 		if (_operators[i] == client) {
 			_operators.erase(_operators.begin() + i);
-			return;  //pas de doublons normalement
+			return;
 		}
 	}
 }
@@ -62,7 +61,6 @@ bool		Channel::isOperator(Client *client) const
 
 void		Channel::addMember(Client *client)
 {
-	// case sensitive ? a verif
 	for (size_t i = 0; i < _members.size(); i++) {
 		if (_members[i] == client)
 			return ;
@@ -75,14 +73,14 @@ void		Channel::rmMember(Client *client)
 	for (size_t i = 0; i < _members.size(); i++) {
 		if (_members[i] == client) {
 			_members.erase(_members.begin() + i);
-			break;  //pas de doublons normalement
+			break;
 		}
 	}
 	// if member is also op
 	for (size_t i = 0; i < _operators.size(); i++) {
 		if (_operators[i] == client) {
 			_operators.erase(_operators.begin() + i);
-			return;  //pas de doublons normalement
+			return;
 		}
 	}
 }
