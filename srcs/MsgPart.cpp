@@ -6,48 +6,39 @@ void	Messages::partMsg(Client *client, std::string msg, std::vector<Client *> cl
 
 	std::string	partMsg;
 	std::vector<std::string> chans;
+	msg.erase(0,5);
+
+	if (msg.find(' ', 0) != std::string::npos) {  //== if part message
+		partMsg = msg.substr(msg.find(' ', 0), std::string::npos);
+		msg = msg.substr(0, msg.find(' ', 0));
+	}
+	else {
+		partMsg = "\r\n";
+		msg = msg.substr(0, msg.find("\r\n", 0));
+	}
 	// get channels to leave
-	while (msg.find('#', 0) != std::string::npos && msg.find('#', 0) < msg.find(':', 0)) {
-		msg = msg.substr(msg.find('#', 0) + 1, std::string::npos);
+	while (msg.find(',', 0) != std::string::npos) {
+		chans.push_back(msg.substr(1, msg.find(',', 0) - 1));
 
-		std::string chan;
-		if (msg.find('#', 0) != std::string::npos && msg.find('#', 0) < msg.find(':', 0))  // 2eme condition si '#' dans partmsg // PAS BIEN!!!!!!!!
-			chan = msg.substr(0, msg.find(',', 0));
-		else if (msg.find(' ', 0) != std::string::npos)  // == if part message
-			chan = msg.substr(0, msg.find(' ', 0));
-		else
-			chan = msg.substr(0, msg.find('\r', 0));
-		chans.push_back(chan);
+		msg = msg.substr(msg.find(',', 0) + 1, std::string::npos);
 	}
-	// get part message
-	if (msg.find(':', 0) != std::string::npos)
-		partMsg = msg.substr(msg.find(':', 0) - 1, std::string::npos);  // PAS BIEN!!!!!!
-	else
-		partMsg = "\r\n";  //+nickname ?
+	chans.push_back(msg.erase(0, 1));
 
-	// DOIT tolower() LES CHANS !!
+	for (size_t i = 0; i < chans.size(); i++)
+		part2(client, channels, chans[i], partMsg);
+}
 
-	// leave parsed channels
-	// BROKEN !!!! Gere mal le multi chan !!!!
-	for (size_t i = 0; i < chans.size(); i++) {
-		size_t j;
-		for (j = 0; j < channels.size(); j++)
-			if (channels[j].getName() == lowercase(chans[i]))
-				break;
-		if (j < channels.size()) {
-			if (channels[j].isMember(client)) {
-				// s'affiche correctement mais close pas la tab
-				std::string reply = ":" + client->getNick() + "!" + client->getUser() + "@127.0.0.1" + " PART #" + chans[i] + partMsg;
-				// _RPL = reply;
-				// _RPLtarget = channels[j].getMembers();
-				_RPL[reply] = channels[j].getMembers();
-				channels[j].rmMember(client);
-				// if members == 0 delete channel ????
+void	Messages::part2(Client *client, std::vector<Channel> &channels, std::string chan, std::string partMsg)
+{
+	for (size_t i = 0; i < channels.size(); i++) {
+		if (channels[i].getName() == lowercase(chan)) {
+			if (channels[i].isMember(client)) {
+				_RPL[PART(client->getNick(), client->getUser(), chan, partMsg)] = channels[i].getMembers();
+				channels[i].rmMember(client);
+				return; 
 			}
-			else
-				std::cout << "you are not on that channel" << std::endl;  //handle error
+			_RPL[ERR_NOTONCHANNEL(client->getNick(), chan)].push_back(client); return;
 		}
-		else
-			std::cout << "chan does not exist" << std::endl;  //handle error
 	}
+	_RPL[ERR_NOSUCHCHANNEL(client->getNick(), chan)].push_back(client); return;
 }

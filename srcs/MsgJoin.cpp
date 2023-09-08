@@ -30,44 +30,8 @@ void	Messages::joinMsg(Client *client, std::string msg, std::vector<Client *> cl
 	}
 	elems[chans.erase(0, 1)] = passwords;  //last elem
 
-	for (std::map<std::string, std::string>::iterator it = elems.begin(); it != elems.end(); it++) {
+	for (std::map<std::string, std::string>::iterator it = elems.begin(); it != elems.end(); it++)
 		join2(client, channels, it->first, it->second);
-	}
-
-	// OLD
-	// std::string name = msg.substr(msg.find("#", 0) + 1, std::string::npos);
-	// name = name.substr(0, name.find("\r\n", 0));
-	// size_t		i = 0;
-
-	// while (i < channels.size()) {
-	// 	if (channels[i].getName() == lowercase(name))
-	// 		break;
-	// 	i++;
-	// }
-	// if (i == channels.size() || channels.size() == 0) {
-	// 	Channel newchan(lowercase(name), client);
-	// 	channels.push_back(newchan);
-	// 	_RPL = JOIN(client->getNick(), client->getUser(), name);
-	// 	_RPLtarget.push_back(client);
-	// }
-	// else {
-	// 	channels[i].addMember(client);
-	// 	_RPL = JOIN(client->getNick(), client->getUser(), name);
-	// 	_RPLtarget.push_back(client);
-	// }
-	// // RPL_TOPIC
-	// if (!channels[i].getTopic().empty())
-	// 	_RPL += RPL_TOPIC(client->getNick(), name, channels[i].getTopic());
-	// // RPL_NAMREPLY
-	// _RPL += ":127.0.0.1 353 " + client->getNick() + " = #" + name + " :";
-	// for (size_t j = 0; j < channels[i].getMembers().size(); j++) {
-	// 	if (channels[i].isOperator(channels[i].getMembers()[j]))  //==is ope
-	// 		_RPL += "@";
-	// 	_RPL += channels[i].getMembers()[j]->getNick() + " ";  // c moche
-	// }
-	// _RPL += "\r\n";
-	// // RPL_ENDOFNAMES
-	// _RPL += RPL_ENDOFNAMES(client->getNick(), name);
 }
 
 void	Messages::join2(Client *client, std::vector<Channel> &channels, std::string chan, std::string pw)
@@ -82,18 +46,13 @@ void	Messages::join2(Client *client, std::vector<Channel> &channels, std::string
 			break;
 		i++;
 	}
-	if (i == channels.size() || channels.size() == 0) {
+	if (i == channels.size() || channels.size() == 0) {  //check for pw
 		Channel newchan(lowercase(chan), client);
 		channels.push_back(newchan);
-		// _RPL += JOIN(client->getNick(), client->getUser(), chan);
-		// _RPLtarget.push_back(client);
 		mainRpl = JOIN(client->getNick(), client->getUser(), chan);
 	}
 	else {
 		channels[i].addMember(client);
-		// _RPL += JOIN(client->getNick(), client->getUser(), chan);
-		// _RPLtarget.push_back(client);
-		// _RPLtarget = channels[i].getMembers();  // PB A REGLER
 		_RPL[JOIN(client->getNick(), client->getUser(), chan)] = channels[i].getMembers();
 	}
 	// RPL_TOPIC
@@ -104,7 +63,7 @@ void	Messages::join2(Client *client, std::vector<Channel> &channels, std::string
 	for (size_t j = 0; j < channels[i].getMembers().size(); j++) {
 		if (channels[i].isOperator(channels[i].getMembers()[j]))  //==is ope
 			mainRpl += "@";
-		mainRpl += channels[i].getMembers()[j]->getNick() + " ";  // c moche
+		mainRpl += channels[i].getMembers()[j]->getNick() + " ";
 	}
 	mainRpl += "\r\n";
 	// RPL_ENDOFNAMES

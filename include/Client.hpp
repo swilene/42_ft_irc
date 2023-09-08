@@ -24,7 +24,6 @@ class Client
 	private:
 		std::string _user, _nick, _host;
 		int			_fd;
-		// pollfd		&_pollfd;  // marche pas comme ca
 
 	public:
 		Client(int fd);

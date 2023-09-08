@@ -84,8 +84,6 @@ void Messages::registerMsg(Client *client)
 	user = user.substr(0, user.find(" ", 1));
 	client->setUser(user);
 
-	// _RPL.push_back(WELCOME(client->getNick(), client->getUser()));
-	// _RPLtarget.push_back(std::vector<std::string>(client));
 	_RPL[WELCOME(client->getNick(), client->getUser())].push_back(client);
 }
 
