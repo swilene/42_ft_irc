@@ -46,14 +46,22 @@ void	Messages::join2(Client *client, std::vector<Channel> &channels, std::string
 			break;
 		i++;
 	}
-	if (i == channels.size() || channels.size() == 0) {  //check for pw
+	if (i == channels.size() || channels.size() == 0) {
 		Channel newchan(lowercase(chan), client);
 		channels.push_back(newchan);
 		mainRpl = JOIN(client->getNick(), client->getUser(), chan);
 	}
-	else {
-		channels[i].addMember(client);
-		_RPL[JOIN(client->getNick(), client->getUser(), chan)] = channels[i].getMembers();
+	else {  //check for pw and invite-only
+		if (channels[i].getInviteOnly() == true) {  // Check avant ou apres PW ?
+			_RPL[ERR_INVITEONLYCHAN(client->getNick(), chan)].push_back(client); return;   // PAS TESTER
+		}
+		if (channels[i].getPassword().empty() || channels[i].getPassword() == pw) {
+			channels[i].addMember(client);
+			_RPL[JOIN(client->getNick(), client->getUser(), chan)] = channels[i].getMembers();
+		}
+		else {  // wrong password
+			_RPL[ERR_BADCHANNELKEY(client->getNick(), chan)].push_back(client); return;  // PAS TESTER
+		}
 	}
 	// RPL_TOPIC
 	if (!channels[i].getTopic().empty())

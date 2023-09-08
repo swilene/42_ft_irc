@@ -42,6 +42,8 @@
 #define ERR_ERRONEUSNICKNAME(nick, newnick) (":127.0.0.1 432 " + nick + " :Erroneus nickname: " + newnick + "\r\n")
 #define ERR_NICKNAMEINUSE(nick, newnick) (":127.0.0.1 433 " + nick + " " + newnick + " :Nickname is already in use\r\n")
 #define ERR_NOTONCHANNEL(nick, chan) (":127.0.0.1 442 " + nick + " #" + chan + " :You're not on that channel\r\n")
+#define ERR_INVITEONLYCHAN(nick, chan) (":127.0.0.1 473 " + nick + " #" + chan + " :Cannot join channel (+i)\r\n")
+#define ERR_BADCHANNELKEY(nick, chan) (":127.0.0.1 475 " + nick + " #" + chan + " :Cannot join channel (+k)\r\n")
 #define ERR_CHANOPRIVSNEEDED(nick, chan) (":127.0.0.1 482 " + nick + " #" + chan + " :You're not channel operator\r\n")
 
 #define RPL_NOTOPIC(nick, chan) (":127.0.0.1 331 " + nick + " #" + chan + " :No topic is set\r\n")
