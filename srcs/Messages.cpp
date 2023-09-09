@@ -83,13 +83,16 @@ void Messages::registerMsg(Client *client)
 	user = user.substr(0, user.find(" ", 1));
 	client->setUser(user);
 
-	_RPL[WELCOME(client->getNick(), client->getUser())].push_back(client);
+	// _RPL[WELCOME(client->getNick(), client->getUser())].push_back(client);
+	std::string rpl = RPL_WELCOME(client->getNick(), client->getUser());
+	rpl += RPL_MYINFO(client->getNick());
+	_RPL[rpl].push_back(client);
+
 	//// TEST, necessaire ??
 	// std::string fullrpl = WELCOME(client->getNick(), client->getUser());
 	// fullrpl += ":127.0.0.1 002 " + nick + " :Your host is 127.0.0.1, running version ircd-ratbox-3.0.10\r\n";
 	// fullrpl += ":127.0.0.1 003 " + nick + " :This server was created Sun Oct 2 2016 at 04:55:27 CEST\r\n";
 	// fullrpl += ":127.0.0.1 004 " + nick + " :127.0.0.1 ircd-ratbox-3.0.10 oiwszcrkfydnxbauglZCD biklmnopstveIrS bkloveI\r\n";
-
 	// _RPL[fullrpl].push_back(client);
 }
 

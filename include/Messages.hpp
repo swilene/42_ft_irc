@@ -20,13 +20,17 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <limits>
 
-#include <ctime>
+#include <cstdlib>
+#include <cstdio>
+// #include <ctime>
 #include <cctype>
 #include <sys/types.h>
 #include <sys/socket.h>
 
-#define WELCOME(nick, user) (":127.0.0.1 001 " + nick + " :Welcome to the Internet Relay Network " + nick + "!" + user + "@127.0.0.1\r\n") 
+#define RPL_WELCOME(nick, user) (":127.0.0.1 001 " + nick + " Welcome to the Internet Relay Network " + nick + "!" + user + "@127.0.0.1\r\n") 
+#define RPL_MYINFO(nick) ":127.0.0.1 004 " + nick + " 127.0.0.1 ft_irc 1.0 aAbcCdefFghHiIjkKmnoOPrRsSwxXy itlko\r\n"
 #define PONG(server) ("PONG " + server + "\r\n")
 #define NICK(nick, user, newnick) (":" + nick + "!" + user + "@127.0.0.1 NICK " + newnick + "\r\n")
 #define MODE(nick, user, channel, mode) (":" + nick + "!" + user + "@127.0.0.1 MODE " + channel + " " + mode + "\r\n")
@@ -37,17 +41,23 @@
 #define INVITE(nick, user, nick2, chan) (":" + nick + "!" + user + "@127.0.0.1 INVITE " + nick2 + " #" + chan + "\r\n")
 #define QUIT(nick, user, quitMsg) (":" + nick + "!" + user + "@127.0.0.1 QUIT" + quitMsg)
 
+#define BAD_MODE(c) ("Unknown mode character " + c + "\r\n")
+
 #define ERR_NOSUCHNICK(target, nick) ("401 127.0.0.1 " + target + " " + nick + " :No such nick/channel\r\n")
 #define ERR_NOSUCHCHANNEL(nick, channel) (":127.0.0.1 403 " + nick + " " + channel + "\r\n")
 #define ERR_CANNOTSENDTOCHAN(nick, chan) (":127.0.0.1 404 " + nick + " " + chan + " :Cannot send to channel\r\n")
 #define ERR_ERRONEUSNICKNAME(nick, newnick) (":127.0.0.1 432 " + nick + " :Erroneus nickname: " + newnick + "\r\n")
 #define ERR_NICKNAMEINUSE(nick, newnick) (":127.0.0.1 433 " + nick + " " + newnick + " :Nickname is already in use\r\n")
+#define ERR_USERNOTINCHANNEL(nick, channel) (":127.0.0.1 441 " + nick + " " + nick + " #" + channel + " :They aren't on that channel\r\n")
 #define ERR_NOTONCHANNEL(nick, chan) (":127.0.0.1 442 " + nick + " #" + chan + " :You're not on that channel\r\n")
 #define ERR_USERONCHANNEL(nick, nick2, chan) (":127.0.0.1 443 " + nick + " " + nick2 + " #" + chan + " :is already on channel\r\n")
+#define ERR_NEEDMOREPARAMS(nick, cmd) (":127.0.0.1 461 " + nick + " " + cmd + " :Not enough parameters\r\n")
 #define ERR_INVITEONLYCHAN(nick, chan) (":127.0.0.1 473 " + nick + " #" + chan + " :Cannot join channel (+i)\r\n")
 #define ERR_BADCHANNELKEY(nick, chan) (":127.0.0.1 475 " + nick + " #" + chan + " :Cannot join channel (+k)\r\n")
 #define ERR_CHANOPRIVSNEEDED(nick, chan) (":127.0.0.1 482 " + nick + " #" + chan + " :You're not channel operator\r\n")
 
+#define RPL_UMODEIS(nick) (":127.0.0.1 221 " + nick + " +i \r\n")
+#define RPL_CHANNELMODEIS(nick, channel, mode) (":127.0.0.1 324 " + nick + " " + channel + " " + mode + "\r\n")
 #define RPL_NOTOPIC(nick, chan) (":127.0.0.1 331 " + nick + " #" + chan + " :No topic is set\r\n")
 #define RPL_TOPIC(nick, chan, topic) (":127.0.0.1 332 " + nick + " #" + chan + " :" + topic + "\r\n")
 #define RPL_ENDOFNAMES(nick, chan) (":127.0.0.1 366 " + nick + " #" + chan + " :End of NAMES list\r\n")
