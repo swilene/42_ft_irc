@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 12:03:00 by saguesse          #+#    #+#             */
-/*   Updated: 2023/09/07 09:49:59 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/09/09 11:11:33 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,8 @@ void Messages::registerMsg(Client *client)
 	user = user.substr(0, user.find(" ", 1));
 	client->setUser(user);
 
-	_RPL = WELCOME(client->getNick(), client->getUser());
+	_RPL = RPL_WELCOME(client->getNick(), client->getUser());
+	_RPL += RPL_MYINFO(client->getNick());
 	_RPLtarget.push_back(client);
 }
 

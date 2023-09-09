@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 12:08:18 by saguesse          #+#    #+#             */
-/*   Updated: 2023/09/07 18:03:07 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/09/09 12:04:50 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,22 +22,29 @@
 #include <limits>
 
 #include <cstdlib>
+#include <cstdio>
 #include <cctype>
 #include <sys/types.h>
 #include <sys/socket.h>
 
 
-#define WELCOME(nick, user) (":127.0.0.1 001 " + nick + " Welcome to the Internet Relay Network " + nick + "!" + user + "@127.0.0.1\r\n") 
+#define RPL_WELCOME(nick, user) (":127.0.0.1 001 " + nick + " Welcome to the Internet Relay Network " + nick + "!" + user + "@127.0.0.1\r\n") 
+#define RPL_MYINFO(nick) ":127.0.0.1 004 " + nick + " 127.0.0.1 ft_irc 1.0 aAbcCdefFghHiIjkKmnoOPrRsSwxXy itlko\r\n"
 #define NICK(nick, user, newnick) (":" + nick + "!" + user + "@127.0.0.1 NICK " + newnick + "\r\n")
 #define MODE(nick, user, channel, mode) (":" + nick + "!" + user + "@127.0.0.1 MODE " + channel + " " + mode + "\r\n")
+
+#define BAD_MODE(c) ("Unknown mode character " + c + "\r\n")
 
 #define RPL_UMODEIS(nick) (":127.0.0.1 221 " + nick + " +i \r\n")
 #define RPL_CHANNELMODEIS(nick, channel, mode) (":127.0.0.1 324 " + nick + " " + channel + " " + mode + "\r\n")
 
+#define ERR_NOSUCHNICK(nick) (":127.0.0.1 401 " + nick + " " + nick + "\r\n")
 #define ERR_NOSUCHCHANNEL(nick, channel) (":127.0.0.1 403 " + nick + " " + channel + "\r\n")
 #define ERR_NICKNAMEINUSE(nick, newnick) (":127.0.0.1 433 " + nick + "\r\n")
 #define ERR_ERRONEUSNICKNAME(nick, newnick) (":127.0.0.1 432 " + nick + " :Erroneus nickname: " + newnick + "\r\n")
-
+#define ERR_USERNOTINCHANNEL(nick, channel) (":127.0.0.1 441 " + nick + " " + nick + " #" + channel + " :They aren't on that channel\r\n")
+#define ERR_NEEDMOREPARAMS(nick, cmd) (":127.0.0.1 461 " + nick + " " + cmd + " :Not enough parameters\r\n")
+#define ERR_CHANOPRIVSNEEDED(nick, channel) (":127.0.0.1 482 " + nick + " #" + channel + " :You're not channel operator\r\n")
 
 class Server;
 
