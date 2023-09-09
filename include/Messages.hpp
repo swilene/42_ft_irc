@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 12:08:18 by saguesse          #+#    #+#             */
-/*   Updated: 2023/09/06 13:59:13 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/09/09 12:04:50 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 #include <map>
+
 #include <limits>
 
 #include <cstdlib>
@@ -63,6 +64,13 @@
 #define RPL_ENDOFNAMES(nick, chan) (":127.0.0.1 366 " + nick + " #" + chan + " :End of NAMES list\r\n")
 #define RPL_INVITING(nick, nick2, chan) (":127.0.0.1 341 " + nick + " #" + chan + " " + nick2 + "\r\n")
 
+#define ERR_NOSUCHNICK(nick) (":127.0.0.1 401 " + nick + " " + nick + "\r\n")
+#define ERR_NOSUCHCHANNEL(nick, channel) (":127.0.0.1 403 " + nick + " " + channel + "\r\n")
+#define ERR_NICKNAMEINUSE(nick, newnick) (":127.0.0.1 433 " + nick + "\r\n")
+#define ERR_ERRONEUSNICKNAME(nick, newnick) (":127.0.0.1 432 " + nick + " :Erroneus nickname: " + newnick + "\r\n")
+#define ERR_USERNOTINCHANNEL(nick, channel) (":127.0.0.1 441 " + nick + " " + nick + " #" + channel + " :They aren't on that channel\r\n")
+#define ERR_NEEDMOREPARAMS(nick, cmd) (":127.0.0.1 461 " + nick + " " + cmd + " :Not enough parameters\r\n")
+#define ERR_CHANOPRIVSNEEDED(nick, channel) (":127.0.0.1 482 " + nick + " #" + channel + " :You're not channel operator\r\n")
 
 class Server;
 
