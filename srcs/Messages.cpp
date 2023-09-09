@@ -16,19 +16,18 @@ Messages::Messages() : _servername("localhost"), _version("1.1") {}
 
 Messages::~Messages() {}
 
-std::string	Messages::getRPL() const { return _RPL; }
-std::vector<Client *> Messages::getRPLtarget() const { return _RPLtarget; }
+std::map<std::string, std::vector<Client *> >	Messages::getRPL() const { return _RPL; }
 
 void Messages::parseMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
 	std::string cmd = msg.substr(0, msg.find(" ", 0));
-	std::string msgs[8] = {"PING", "MODE", "JOIN", "PRIVMSG", "PART", "QUIT", "NICK", "TOPIC"};
+	std::string msgs[9] = {"PING", "MODE", "JOIN", "PRIVMSG", "PART", "QUIT", "NICK", "TOPIC", "INVITE"};
 
-	void (Messages::*m[8])(Client *, std::string, std::vector<Client *>, std::vector<Channel>&) = {&Messages::pingMsg,
+	void (Messages::*m[9])(Client *, std::string, std::vector<Client *>, std::vector<Channel>&) = {&Messages::pingMsg,
 		&Messages::modeMsg, &Messages::joinMsg, &Messages::privMsg, &Messages::partMsg, &Messages::quitMsg,
-		&Messages::nickMsg, &Messages::topicMsg};
+		&Messages::nickMsg, &Messages::topicMsg, &Messages::inviteMsg};
 
-	for (int i = 0; i < 8; i++) {
+	for (int i = 0; i < 9; i++) {
 		if (msgs[i] == cmd)
 			(this->*m[i])(client, msg, clients, channels);
 	}
@@ -36,13 +35,15 @@ void Messages::parseMsg(std::string msg, Client *client, std::vector<Client *> c
 
 void Messages::sendRPL(Client *client)
 {
-	send(client->getFd(), _RPL.c_str(), _RPL.size(), 0);
-
-	std::cout << " SENDING [" << _RPL.substr(0, _RPL.size() - 2) << "\\r\\n] TO [" << client->getNick() << "]" << std::endl; 
+	std::map<std::string, std::vector<Client *> >::iterator	rpl = _RPL.begin();
 	
-	_RPLtarget.erase(_RPLtarget.begin());
-	if (_RPLtarget.size() == 0)
-		_RPL.clear();
+	send(client->getFd(), rpl->first.c_str(), rpl->first.size(), 0);
+
+	std::cout << " SENDING [" << rpl->first.substr(0, rpl->first.size() - 2) << "\\r\\n] TO [" << client->getNick() << "]" << std::endl << std::endl; 
+
+	rpl->second.erase(rpl->second.begin());
+	if (rpl->second.size() == 0)
+		_RPL.erase(rpl);
 }
 
 void Messages::registerMsg(Client *client)
@@ -53,7 +54,7 @@ void Messages::registerMsg(Client *client)
 	while (fullbuf.find("USER", 0) == std::string::npos) {
 		ssize_t recvd = recv(client->getFd(), buf, sizeof(buf), 0);
 		if (recvd < 0)
-			std::cout << "Error recv()" << std::endl; //return ?
+			std::cout << "Error recv()" << std::endl; //return ? //faudrait throw() qqchose
 		buf[recvd] = '\0';
 		fullbuf += buf;
 	}
@@ -62,8 +63,19 @@ void Messages::registerMsg(Client *client)
 	nick = nick.substr(nick.find("NICK ", 0) + 5, std::string::npos);
 	nick = nick.substr(0, nick.find("\r\n", 0));
 	// tmp, gerer les doublons de NICK
-	if (client->getFd() > 4)
+	if (client->getFd() > 4) {
+		//// A FAIRE, doit envoyer ERR_NICKNAMEINUSE
+		// std::string nicktest = ERR_NICKNAMEINUSE(nick, nick + "_");
+		// send(client->getFd(), nicktest.c_str(), nicktest.size(), 0);
+
+		// char buf2[256];
+		// ssize_t recvd2 = recv(client->getFd(), buf2, sizeof(buf2), 0);
+		// buf2[recvd2] = '\0';
+		// std::cout << "NEW BUF? = " << buf2 << std::endl;
+		// nick += "_";
+
 		nick += client->getFd() + 48;
+	}
 	client->setNick(nick);
 
 	std::string user = fullbuf;
@@ -71,9 +83,17 @@ void Messages::registerMsg(Client *client)
 	user = user.substr(0, user.find(" ", 1));
 	client->setUser(user);
 
-	_RPL = RPL_WELCOME(client->getNick(), client->getUser());
-	_RPL += RPL_MYINFO(client->getNick());
-	_RPLtarget.push_back(client);
+	// _RPL[WELCOME(client->getNick(), client->getUser())].push_back(client);
+	std::string rpl = RPL_WELCOME(client->getNick(), client->getUser());
+	rpl += RPL_MYINFO(client->getNick());
+	_RPL[rpl].push_back(client);
+
+	//// TEST, necessaire ??
+	// std::string fullrpl = WELCOME(client->getNick(), client->getUser());
+	// fullrpl += ":127.0.0.1 002 " + nick + " :Your host is 127.0.0.1, running version ircd-ratbox-3.0.10\r\n";
+	// fullrpl += ":127.0.0.1 003 " + nick + " :This server was created Sun Oct 2 2016 at 04:55:27 CEST\r\n";
+	// fullrpl += ":127.0.0.1 004 " + nick + " :127.0.0.1 ircd-ratbox-3.0.10 oiwszcrkfydnxbauglZCD biklmnopstveIrS bkloveI\r\n";
+	// _RPL[fullrpl].push_back(client);
 }
 
 std::string	Messages::lowercase(std::string str)
@@ -83,23 +103,3 @@ std::string	Messages::lowercase(std::string str)
 	
 	return (str);
 }
-
-/*void Messages::nickMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels)
-{
-	(void)channels;
-
-	std::cout << "debug: nick msg" << std::endl;
-	msg.erase(0, 5);
-	msg.erase(msg.size() - 2, 2);
-	if (msg[0] == '#' || msg[0] == '&' || msg[0] == '@' || msg[0] == '!' || msg[0] == '%' || msg[0] == '*' || msg[0] == '(' || msg[0] == ')')
-		_RPL = ERR_ERRONEUSNICKNAME(client->getNick(), msg);
-	for (size_t i = 0; i < clients.size(); i++) {
-		if (client->getNick() != clients[i]->getNick() && clients[i]->getNick() == msg)
-			_RPL = ERR_NICKNAMEINUSE(client->getNick(), msg);
-	}
-	if (_RPL.empty()) {
-		_RPL = NICK(client->getNick(), client->getUser(), msg);
-		client->setNick(msg);
-	}
-	_RPLtarget.push_back(client);
-}*/

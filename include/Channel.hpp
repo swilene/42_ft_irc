@@ -9,7 +9,7 @@ class Channel {
 
 	private :
 		std::string		_name;
-		// std::string		_topic;
+		std::string		_topic;
 		bool			_inviteOnly;  	// -i
 		bool			_topicRights; 	// -t
 		std::string		_password;    	// -k
@@ -17,14 +17,15 @@ class Channel {
 		// mettre les *Client
 		std::vector<Client *>	_operators; // -o
 		std::vector<Client *>	_members;   //save nickname
+		std::vector<Client *>	_invited;
 
 	public :
 		Channel(std::string name, Client *creator);  //envoyer password?
 		~Channel();
 
 		std::string	getName() const;  //pas de setter
-		// std::string	getTopic() const;
-		// void		setTopic(std::string topic);
+		std::string	getTopic() const;
+		void		setTopic(std::string topic);
 		bool		getInviteOnly() const;
 		void		setInviteOnly(bool mode);
 		bool		getTopicRights() const;
@@ -43,6 +44,10 @@ class Channel {
 		void		addMember(Client *client);
 		void		rmMember(Client *client);
 		bool		isMember(Client *client) const;
+
+		void		addInvited(Client *client);
+		void		rmInvited(Client *client);
+		bool		isInvited(Client *client) const;
 
 };
 

@@ -5,16 +5,17 @@ void	Messages::quitMsg(Client *client, std::string msg, std::vector<Client *> cl
 	(void)channels;
 
 	std::string quitMsg = msg.substr(msg.find("QUIT :", 0) + 4, std::string::npos);
-	
-	_RPL = ":" + client->getNick() + "!" + client->getUser() + "@127.0.0.1 QUIT" + quitMsg;
-	_RPLtarget = clients;
 
-	for (size_t i = 0; i < _RPLtarget.size(); i++) {
-		if (_RPLtarget[i] == client) {
-			_RPLtarget.erase(_RPLtarget.begin() + i);
-			break;
+	std::string rpl = QUIT(client->getNick(), client->getUser(), quitMsg);
+	_RPL[rpl] = clients;
+
+	// remove leaving user
+	for (size_t i = 0; i < _RPL[rpl].size(); i++) {
+		if (_RPL[rpl][i] == client) {
+			_RPL[rpl].erase(_RPL[rpl].begin() + i);
+			break ;
 		}
 	}
-	if (_RPLtarget.size() == 0)
+	if (_RPL[rpl].size() == 0)
 		_RPL.clear();
 }

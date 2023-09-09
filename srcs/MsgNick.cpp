@@ -6,18 +6,16 @@ void Messages::nickMsg(Client *client, std::string msg, std::vector<Client *> cl
 
 	msg.erase(0, 5);
 	msg.erase(msg.size() - 2, 2);
-	if (msg[0] == '#' || msg[0] == '&' || msg[0] == '@' || msg[0] == '!' || msg[0] == '%' || msg[0] == '*' || msg[0] == '(' || msg[0] == ')')
-	{
-		_RPL = ERR_ERRONEUSNICKNAME(client->getNick(), msg);
-		std::cout << "err: " << _RPL << std::endl;
+	if (msg.find_first_of("#&@!%*()") == 0 || msg.find(',') != std::string::npos) {
+		_RPL[ERR_ERRONEUSNICKNAME(client->getNick(), msg)].push_back(client);
+		return ;
 	}
 	for (size_t i = 0; i < clients.size(); i++) {
-		if (client->getNick() != clients[i]->getNick() && lowercase(clients[i]->getNick()) == lowercase(msg))
-			_RPL = ERR_NICKNAMEINUSE(client->getNick(), msg);
+		if (client->getNick() != clients[i]->getNick() && lowercase(clients[i]->getNick()) == lowercase(msg)) {
+			_RPL[ERR_NICKNAMEINUSE(client->getNick(), msg)].push_back(client);
+			return ;
+		}
 	}
-	if (_RPL.empty()) {
-		_RPL = NICK(client->getNick(), client->getUser(), msg);
-		client->setNick(msg);
-	}
-	_RPLtarget.push_back(client);
+	_RPL[NICK(client->getNick(), client->getUser(), msg)].push_back(client);
+	client->setNick(msg);
 }

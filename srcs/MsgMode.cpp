@@ -1,23 +1,25 @@
 #include "Messages.hpp"
 
-std::string modeOperator(Channel &channel, std::vector<std::string> args, size_t &j, std::string &newMode, bool set, std::vector<Client *> clients, std::string &_RPL, Messages msg)
+// "/mode #chan b" == crash
+
+std::string modeOperator(Channel &channel, std::vector<std::string> args, size_t &j, std::string &newMode, bool set, std::vector<Client *> clients, std::string &rpl, Messages msg)
 {
 	bool err = false;
 	std::string user;
 	
 	if (j >= args.size())
 		return (user);
-	
+
 	user = args[j];
 	j++;
-	
+
 	size_t i = 0;
 	for (; i < clients.size(); i++) {
 		if (msg.lowercase(clients[i]->getNick()) == msg.lowercase(user))
 			break;
 	}
 	if (i == clients.size()) {
-		_RPL += ERR_NOSUCHNICK(user);
+		rpl += ERR_NOSUCHNICK(user, user);   // Fais l'erreur "not on channel" aussi, bzr
 		err = true;
 	}
 	i = 0;
@@ -27,10 +29,11 @@ std::string modeOperator(Channel &channel, std::vector<std::string> args, size_t
 				channel.addOperator(channel.getMembers()[i]);
 			else
 				channel.rmOperator(channel.getMembers()[i]);
+			break;   //  /!\ OUBLI, verif les autres loop
 		}
 	}
 	if (i == channel.getMembers().size()) {
-		_RPL += ERR_USERNOTINCHANNEL(user, channel.getName());
+		rpl += ERR_USERNOTINCHANNEL(user, channel.getName());
 		err = true;
 	}
 	if (err)
@@ -58,7 +61,7 @@ void modePassword(Channel &channel, std::vector<std::string> args, size_t &j, st
 	}
 }
 
-void modeLimit(Client *client, Channel &channel, std::vector<std::string> args, size_t &j, std::string &newMode, bool set, std::string &_RPL)
+void modeLimit(Client *client, Channel &channel, std::vector<std::string> args, size_t &j, std::string &newMode, bool set, std::string &rpl)
 {
 	if (!set)
 		channel.setUserLimit(0);
@@ -77,7 +80,7 @@ void modeLimit(Client *client, Channel &channel, std::vector<std::string> args, 
 		j++;
 	}
 	else
-		_RPL += ERR_NEEDMOREPARAMS(client->getNick(), "MODE +l");
+		rpl += ERR_NEEDMOREPARAMS(client->getNick(), "MODE +l");
 }
 
 void modeInviteOnly(Channel &channel, bool set, std::string &newMode)
@@ -98,7 +101,7 @@ void modeTopic(Channel &channel, bool set, std::string &newMode)
 	newMode += "t";
 }
 
-void parsingModes(Channel &channel, std::string mode, std::string &_RPL, std::vector<Client *> clients, Messages &msg, Client *client)
+void parsingModes(Channel &channel, std::string mode, std::string &rpl, std::vector<Client *> clients, Messages &msg, Client *client)
 {
 	// separer les commandes des arguments dans 2 vectors
 	std::vector<char> modes;
@@ -147,16 +150,16 @@ void parsingModes(Channel &channel, std::string mode, std::string &_RPL, std::ve
 			modeTopic(channel, set, newMode);
 		else if (mode[i] == 'l') {
 			std::cout << "debug: j avant = " << j << std::endl;
-			modeLimit(client, channel, args, j, newMode, set, _RPL);
+			modeLimit(client, channel, args, j, newMode, set, rpl);
 			std::cout << "debug: j apres = " << j << std::endl;
 		}
 		else if (mode[i] == 'k')
 			modePassword(channel, args, j, newMode, set);
 		else if (mode[i] == 'o')
-			user = modeOperator(channel, args, j, newMode, set, clients, _RPL, msg);
+			user = modeOperator(channel, args, j, newMode, set, clients, rpl, msg);
 		else if (mode[i] != ' ') {
 			std::string c(1, mode[i]);
-			_RPL += BAD_MODE(c);
+			rpl += BAD_MODE(c);
 		}
 	}
 
@@ -188,7 +191,7 @@ void parsingModes(Channel &channel, std::string mode, std::string &_RPL, std::ve
 			mode += user;
 		}
 	}
-	_RPL += MODE(client->getNick(), client->getUser(), "#" + channel.getName(), mode);
+	rpl += MODE(client->getNick(), client->getUser(), "#" + channel.getName(), mode);
 }
 
 std::string takeChannelModes(Channel &channel)
@@ -210,6 +213,8 @@ std::string takeChannelModes(Channel &channel)
 
 void	Messages::modeMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
+	std::string	rpl;
+
 	msg.erase(0, 5);
 	size_t pos = msg.find(" ", 0);
 	std::string name = msg.substr(0, pos);
@@ -223,33 +228,33 @@ void	Messages::modeMsg(Client *client, std::string msg, std::vector<Client *> cl
 		name.erase(name.size() - 2, 2);
 	if (name[0] != '#') {
 		for (size_t i = 0; i < clients.size(); i++) {
-			if (clients[i]->getNick() == name) {
+			if (clients[i]->getNick() == name) {    //lowercase ??
 				if (mode.empty())
-					_RPL = RPL_UMODEIS(name);
+					rpl = RPL_UMODEIS(name);
 				else
-					_RPL = MODE(client->getNick(), client->getUser(), name, mode);
+					rpl = MODE(client->getNick(), client->getUser(), name, mode);
 				break;
 			}
 		}
-		if (_RPL.empty())
-			_RPL = ERR_NOSUCHCHANNEL(client->getNick(), name);
+		if (rpl.empty())
+			rpl = ERR_NOSUCHCHANNEL(client->getNick(), name);
 	}
 	else if (name[0] == '#') {
 		name.erase(0, 1);
 		for (size_t i = 0; i < channels.size(); i++) {
-			if (channels[i].getName() == name) {
+			if (channels[i].getName() == name) {   //lowercase ??
 				if (mode.empty()) {
 					mode = takeChannelModes(channels[i]);
-					_RPL = RPL_CHANNELMODEIS(client->getNick(), "#" + name, mode);
+					rpl = RPL_CHANNELMODEIS(client->getNick(), "#" + name, mode);
 				}
 				else {
 					if (channels[i].isOperator(client))
-						parsingModes(channels[i], mode, _RPL, clients, *this, client);
+						parsingModes(channels[i], mode, rpl, clients, *this, client);
 					else
-						_RPL += ERR_CHANOPRIVSNEEDED(client->getNick(), channels[i].getName());
+						rpl += ERR_CHANOPRIVSNEEDED(client->getNick(), channels[i].getName());
 				}
 			}
 		}
 	}
-	_RPLtarget.push_back(client);
+	_RPL[rpl].push_back(client);
 }
