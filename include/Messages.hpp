@@ -40,6 +40,7 @@
 #define PRIVMSG(nick, msg) (":" + nick + " " + msg)
 #define TOPIC(nick, user, chan, topic) (":" + nick + "!" + user + "@127.0.0.1 TOPIC #" + chan + topic)
 #define INVITE(nick, user, nick2, chan) (":" + nick + "!" + user + "@127.0.0.1 INVITE " + nick2 + " #" + chan + "\r\n")
+#define KICK(nick, user, nick2, chan, comment) (":" + nick + "!" + user + "@127.0.0.1 KICK #" + chan + " " + nick2 + " :" + comment + "\r\n")
 #define QUIT(nick, user, quitMsg) (":" + nick + "!" + user + "@127.0.0.1 QUIT" + quitMsg)
 
 #define BAD_MODE(c) ("Unknown mode character " + c + "\r\n")
@@ -92,6 +93,9 @@ class Messages
 		void	nickMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	topicMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	inviteMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
+		void	kickMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
+			void	kickParse(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
+			void	kickExec(Client *client, std::vector<Client *> clients, std::vector<Channel> &channels, std::vector<std::string> chans, std::string target, std::string comment);
 
 		std::string	lowercase(std::string str);
 };
