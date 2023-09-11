@@ -34,27 +34,13 @@ void	Messages::kickParse(Client *client, std::string msg, std::vector<Client *> 
 	comment.erase(comment.size() - 2, 2);
 
 	kickExec(client, clients, channels, chans, target, comment);
-
-
-	// std::cout << "CHANNELS: " << std::flush;
-	// for (size_t i = 0; i < chans.size(); i++) {
-	// 	std::cout << "[" << chans[i] << "] " << std::flush;
-	// }
-	// std::cout << std::endl;
-
-	// std::cout << "TARGET: " << target << std::endl;
-	// if (!comment.empty())
-	// 	std::cout << "COMMENT: " << comment << std::endl;
-	// else
-	// 	std::cout << "COMMENT: [empty]" << std::endl << std::endl;
 }
 
 void	Messages::kickExec(Client *client, std::vector<Client *> clients, std::vector<Channel> &channels, std::vector<std::string> chans, std::string target, std::string comment)
 {
-	// [channel] -> exists ? operator ?  ( only the 1st one ??? )
-	// [user]    -> exists ? on channel ?
+	// chans[0] only ????
 
-	chans[0].erase(0, 1);  //remove '#'
+	chans[0].erase(0, 1);
 
 	size_t	i;
 	for (i = 0; i < channels.size(); i++)
@@ -83,7 +69,7 @@ void	Messages::kickExec(Client *client, std::vector<Client *> clients, std::vect
 	}
 
 	if (!channels[i].isMember(clients[j])) {
-		_RPL[ERR_USERNOTINCHANNEL(target, chans[0])].push_back(client); return; //target or client[j] nick ?
+		_RPL[ERR_USERNOTINCHANNEL(target, chans[0])].push_back(client); return;
 	}
 
 	if (comment.empty())
