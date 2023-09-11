@@ -39,6 +39,7 @@ SRCS_FILES = main.cpp \
 			 MsgInvite.cpp \
 			 MsgKick.cpp \
 			 MsgWho.cpp \
+			 MsgWhois.cpp \
 			 Channel.cpp
 SRCS = $(SRCS_FILES:%=$(SRCS_DIR)/%)
 
