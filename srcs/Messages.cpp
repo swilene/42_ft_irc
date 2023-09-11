@@ -66,7 +66,6 @@ void Messages::registerMsg(Client *client, std::vector<Client *> clients, std::v
 	// Check if nick already taken
 	size_t i;
 	do {
-		std::cout << "---nick boucle---" << std::endl;
 		for (i = 0; i < clients.size(); i++) {
 			if (lowercase(nick) == lowercase(clients[i]->getNick())) {
 				std::string rpl = ERR_NICKNAMEINUSE(nick, nick);
