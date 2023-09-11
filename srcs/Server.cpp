@@ -107,8 +107,8 @@ void Server::newClient()
 	_pollfdNew.push_back(newPollfd);
 	
 	Client *newClient = new Client(_newfd);
+	_msg.registerMsg(newClient, _clients, _pollfdNew);  // register direct ?
 	_clients.push_back(newClient);
-	_msg.registerMsg(newClient);  // register direct ?
 
 	std::cout << "pollserver: new connection on socket " << _newfd << std::endl;
 }

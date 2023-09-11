@@ -46,7 +46,7 @@ void Messages::sendRPL(Client *client)
 		_RPL.erase(rpl);
 }
 
-void Messages::registerMsg(Client *client)
+void Messages::registerMsg(Client *client, std::vector<Client *> clients, std::vector<pollfd> newpollfd)
 {
 	char		buf[256];
 	std::string fullbuf;
@@ -62,20 +62,32 @@ void Messages::registerMsg(Client *client)
 	std::string nick = fullbuf;
 	nick = nick.substr(nick.find("NICK ", 0) + 5, std::string::npos);
 	nick = nick.substr(0, nick.find("\r\n", 0));
-	// tmp, gerer les doublons de NICK
-	if (client->getFd() > 4) {
-		//// A FAIRE, doit envoyer ERR_NICKNAMEINUSE
-		// std::string nicktest = ERR_NICKNAMEINUSE(nick, nick + "_");
-		// send(client->getFd(), nicktest.c_str(), nicktest.size(), 0);
 
-		// char buf2[256];
-		// ssize_t recvd2 = recv(client->getFd(), buf2, sizeof(buf2), 0);
-		// buf2[recvd2] = '\0';
-		// std::cout << "NEW BUF? = " << buf2 << std::endl;
-		// nick += "_";
+	// Check if nick already taken
+	size_t i;
+	do {
+		std::cout << "---nick boucle---" << std::endl;
+		for (i = 0; i < clients.size(); i++) {
+			if (lowercase(nick) == lowercase(clients[i]->getNick())) {
+				std::string rpl = ERR_NICKNAMEINUSE(nick, nick);
 
-		nick += client->getFd() + 48;
-	}
+				do { poll(newpollfd.data(), newpollfd.size(), -1); } while (!(newpollfd[0].revents & POLLOUT));
+				send(client->getFd(), rpl.c_str(), rpl.size(), 0);
+
+				do { poll(newpollfd.data(), newpollfd.size(), -1); } while (!(newpollfd[0].revents & POLLIN));
+				ssize_t recvd = recv(client->getFd(), buf, sizeof(buf), 0);
+				buf[recvd] = '\0';
+
+				std::cout << "NEWBUF= " << buf << std::endl;
+				nick = buf;
+				nick = nick.substr(nick.find("NICK ", 0) + 5, std::string::npos);
+				nick = nick.substr(0, nick.find("\r\n", 0));
+
+				break;
+			}
+		}
+	} while (i < clients.size());
+
 	client->setNick(nick);
 
 	std::string user = fullbuf;

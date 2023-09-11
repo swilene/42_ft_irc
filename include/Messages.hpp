@@ -81,7 +81,7 @@ class Messages
 
 		void	parseMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	sendRPL(Client *client);
-		void	registerMsg(Client *client);
+		void	registerMsg(Client *client, std::vector<Client *> clients, std::vector<pollfd> newpollfd);
 		void	pingMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	modeMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	joinMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
