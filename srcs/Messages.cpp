@@ -6,13 +6,17 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 12:03:00 by saguesse          #+#    #+#             */
-/*   Updated: 2023/09/11 14:07:18 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/09/11 16:07:23 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Messages.hpp"
 
-Messages::Messages() : _servername("localhost"), _version("1.1") {}
+Messages::Messages() : _servername("ft_irc")
+{
+	_now = std::time(0);
+	_time = std::ctime(&_now);
+}
 
 Messages::~Messages() {}
 
@@ -53,8 +57,10 @@ void Messages::registerMsg(Client *client, std::vector<Client *> clients, std::v
 
 	while (fullbuf.find("USER", 0) == std::string::npos) {
 		ssize_t recvd = recv(client->getFd(), buf, sizeof(buf), 0);
-		if (recvd < 0)
-			std::cout << "Error recv()" << std::endl; //return ? //faudrait throw() qqchose
+		if (recvd < 0) {
+			std::cout << "Error recv()" << std::endl;
+			return ;
+		}
 		buf[recvd] = '\0';
 		fullbuf += buf;
 	}
@@ -121,19 +127,13 @@ void Messages::registerMsg(Client *client, std::vector<Client *> clients, std::v
 	realname = realname.substr(0, realname.find("\r\n"));
 	client->setRealname(realname);
 
-	// _RPL[WELCOME(client->getNick(), client->getUser())].push_back(client);
 	std::string rpl = RPL_WELCOME(client->getNick(), client->getUser());
+	rpl += RPL_YOURHOST(client->getNick(), _servername);
+	rpl += RPL_CREATED(client->getNick(), _time);
 	rpl += RPL_MYINFO(client->getNick());
 	_RPL[rpl].push_back(client);
 
 	client->setRegistered();
-
-	//// TEST, necessaire ??
-	// std::string fullrpl = WELCOME(client->getNick(), client->getUser());
-	// fullrpl += ":127.0.0.1 002 " + nick + " :Your host is 127.0.0.1, running version ircd-ratbox-3.0.10\r\n";
-	// fullrpl += ":127.0.0.1 003 " + nick + " :This server was created Sun Oct 2 2016 at 04:55:27 CEST\r\n";
-	// fullrpl += ":127.0.0.1 004 " + nick + " :127.0.0.1 ircd-ratbox-3.0.10 oiwszcrkfydnxbauglZCD biklmnopstveIrS bkloveI\r\n";
-	// _RPL[fullrpl].push_back(client);
 }
 
 std::string	Messages::lowercase(std::string str)

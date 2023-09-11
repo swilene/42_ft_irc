@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 12:08:18 by saguesse          #+#    #+#             */
-/*   Updated: 2023/09/11 14:58:44 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/09/11 15:40:59 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,13 +25,15 @@
 
 #include <cstdlib>
 #include <cstdio>
-// #include <ctime>
+#include <ctime>
 #include <cctype>
 #include <sys/types.h>
 #include <sys/socket.h>
 
 #define RPL_WELCOME(nick, user) (":127.0.0.1 001 " + nick + " Welcome to the Internet Relay Network " + nick + "!" + user + "@127.0.0.1\r\n") 
-#define RPL_MYINFO(nick) ":127.0.0.1 004 " + nick + " 127.0.0.1 ft_irc 1.0 aAbcCdefFghHiIjkKmnoOPrRsSwxXy itlko\r\n"
+#define RPL_YOURHOST(nick, server) (":127.0.0.1 002 " + nick + " Your host is " + server + ", running version 1.0\r\n")
+#define RPL_CREATED(nick, date) (":127.0.0.1 003 " + nick + " This server was created " + date + "\r\n")
+#define RPL_MYINFO(nick) (":127.0.0.1 004 " + nick + " 127.0.0.1 ft_irc 1.0 aAbcCdefFghHiIjkKmnoOPrRsSwxXy itlko\r\n")
 #define RPL_ENDOFWHO(nick, channel) (":127.0.0.1 315 " + nick + " " channel + " :End of /WHO list.\r\n")
 #define RPL_ENDOFBANLIST(nick, channel) (":127.0.0.1 368 " + nick + " " + channel + " :End of channel ban list\r\n")
 #define PONG(server) ("PONG " + server + "\r\n")
@@ -77,6 +79,9 @@ class Messages
 	private:
 		std::string _servername, _version;
 		std::map<std::string, std::vector<Client *> >	_RPL;
+
+		std::time_t _now;
+		std::string _time;
 
 	public:
 		Messages();
