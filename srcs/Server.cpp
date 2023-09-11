@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 14:30:00 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/29 19:34:00 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/09/11 16:03:03 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,19 +28,19 @@ void Server::getListenerSocket()
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
-	if (getaddrinfo(NULL, _port.c_str(), &hints, &ai) < 0)
+	if (getaddrinfo(NULL, _port.c_str(), &hints, &ai) < 0 && !exitServer)
 		throw getaddrinfoException();
 
 	_listener = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
-	if (_listener < 0)
+	if (_listener < 0 && !exitServer)
 		throw socketException();
-	if (setsockopt(_listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) < 0)
+	if (setsockopt(_listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) < 0 && !exitServer)
 		throw setsockoptException();
-	if (bind(_listener, ai->ai_addr, ai->ai_addrlen) < 0) {
+	if (bind(_listener, ai->ai_addr, ai->ai_addrlen) < 0 && !exitServer) {
 		close(_listener);
 		throw bindException();
 	}
-	if (listen(_listener, BACKLOG) < 0) {
+	if (listen(_listener, BACKLOG) < 0 && !exitServer) {
 		close(_listener);
 		throw listenException();
 	}
@@ -55,7 +55,7 @@ void Server::mainLoop()
 	_pollfdClients.push_back(_pollfdServer);
 
 	while (exitServer == false) {
-		if (poll(_pollfdClients.data(), _pollfdClients.size(), -1) < 0)
+		if (poll(_pollfdClients.data(), _pollfdClients.size(), -1) < 0 && !exitServer)
 			throw pollException();
 		//if reply to send
 		if (!_msg.getRPL().empty()) {
@@ -98,7 +98,7 @@ void Server::newClient()
 {
 	_addrlen = sizeof _remoteaddr;
 	_newfd = accept(_listener, (sockaddr *)&_remoteaddr, &_addrlen);
-	if (_newfd < 0)
+	if (_newfd < 0 && !exitServer)
 		throw acceptException();
 	
 	pollfd newPollfd;
