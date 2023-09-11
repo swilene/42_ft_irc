@@ -16,7 +16,11 @@ extern bool exitServer;
 
 Server::Server(std::string port, std::string password) : _port(port), _password(password) {}
 
-Server::~Server() {}
+Server::~Server()
+{
+	for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+		delete *it;
+}
 
 std::string Server::getMsgReceived() const { return(_msgReceived); }
 
@@ -83,15 +87,18 @@ void Server::mainLoop()
 					}
 					break;
 				}
-				// else if (it->revents & POLLERR)
+				else if (_pollfdClients[i].revents & POLLERR) {
+					handlePollerr(i);
+					break;
+				}
 			}
 		}
 		_pollfdClients.insert(_pollfdClients.end(), _pollfdNew.begin(), _pollfdNew.end());
 		_pollfdNew.clear();
 	}
-	for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
-		delete *it;
-	_clients.clear();
+	// for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+	// 	delete *it;
+	// _clients.clear();
 }
 
 void Server::newClient()
@@ -141,5 +148,21 @@ void Server::clientAlreadyExists(int pos)
 		buf[recvd] = '\0';
 		std::cout << "client n" << pos << ": " << buf << std::endl;
 		_msgReceived = buf;
+	}
+}
+
+void Server::handlePollerr(int pos)
+{
+	if (pos == 0)
+		std::cout << "LISTENER POLLERR ->> DIE ?" << std::endl;
+	else {
+		for (size_t i = 0; i < _channels.size(); i++) {
+			_channels[i].rmMember(_clients[pos - 1]);
+			if (_channels[i].getMembers().size() == 0) {
+				_channels.erase(_channels.begin() + i);
+				i--;
+			}
+		}
+		_clients.erase(_clients.begin() + pos - 1);
 	}
 }
