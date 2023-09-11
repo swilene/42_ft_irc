@@ -91,5 +91,8 @@ void	Messages::kickExec(Client *client, std::vector<Client *> clients, std::vect
 
 	// kick target
 	_RPL[KICK(client->getNick(), client->getUser(), clients[j]->getNick(), channels[i].getName(), comment)] = channels[i].getMembers();
+	
 	channels[i].rmMember(clients[j]);
+	if (channels[i].getMembers().size() == 0)
+		channels.erase(channels.begin() + i);
 }

@@ -129,8 +129,11 @@ void Server::clientAlreadyExists(int pos)
 	else if (recvd == 0) {  // == disconnected
 		delete _clients[pos - 1];
 		_pollfdClients.erase(_pollfdClients.begin() + pos);
-		for (size_t i = 0; i < _channels.size(); i++)
-			_channels[i].rmMember(_clients[pos - 1]);  //pas besoin de verif si membre
+		for (size_t i = 0; i < _channels.size(); i++) {
+			_channels[i].rmMember(_clients[pos - 1]);
+			if (_channels[i].getMembers().size() == 0)
+				_channels.erase(_channels.begin() + i);
+		}
 		_clients.erase(_clients.begin() + pos - 1);
 		std::cout << "Client n" << pos << " disconnected" << std::endl;
 	}
