@@ -65,6 +65,7 @@
 #define ERR_CHANOPRIVSNEEDED(nick, chan) (":127.0.0.1 482 " + nick + " #" + chan + " :You're not channel operator\r\n")
 
 #define RPL_UMODEIS(nick) (":127.0.0.1 221 " + nick + " +i \r\n")
+#define RPL_WHOISUSER(nick, nick2, user, realname) (":127.0.0.1 311 " + nick + " " + nick2 + " " + user + " localhost * :" + realname + "\r\n")
 #define RPL_CHANNELMODEIS(nick, channel, mode) (":127.0.0.1 324 " + nick + " " + channel + " " + mode + "\r\n")
 #define RPL_NOTOPIC(nick, chan) (":127.0.0.1 331 " + nick + " #" + chan + " :No topic is set\r\n")
 #define RPL_TOPIC(nick, chan, topic) (":127.0.0.1 332 " + nick + " #" + chan + " :" + topic + "\r\n")
@@ -106,6 +107,7 @@ class Messages
 			void	kickParse(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 			void	kickExec(Client *client, std::vector<Client *> clients, std::vector<Channel> &channels, std::vector<std::string> chans, std::string target, std::string comment);
 		void	whoMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
+		void	whoisMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 
 		std::string	lowercase(std::string str);
 };

@@ -22,7 +22,7 @@
 class Client
 {
 	private:
-		std::string _user, _nick, _host;
+		std::string _user, _nick, _realname, _host;  // _host necessaire ?
 		int			_fd;
 		bool		_registered;
 
@@ -33,12 +33,14 @@ class Client
 		// setter
 		void setUser(std::string user);
 		void setNick(std::string nick);
+		void setRealname(std::string nick);
 		void setHost(std::string host);
 		void setRegistered();
 
 		// getter
 		std::string getUser() const;
 		std::string getNick() const;
+		std::string getRealname() const;
 		std::string getHost() const;
 		int 		getFd() const;
 		bool		getRegistered() const;

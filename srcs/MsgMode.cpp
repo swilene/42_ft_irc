@@ -99,7 +99,7 @@ void modeTopic(Channel &channel, bool set, std::string &newMode)
 	newMode += "t";
 }
 
-void parsingModes(Channel &channel, std::string mode, std::string &rpl, std::vector<Client *> clients, Messages &msg, Client *client)
+std::string parsingModes(Channel &channel, std::string mode, std::string &rpl, std::vector<Client *> clients, Messages &msg, Client *client)
 {
 	// separer les commandes des arguments dans 2 vectors
 	std::vector<char> modes;
@@ -111,13 +111,11 @@ void parsingModes(Channel &channel, std::string mode, std::string &rpl, std::vec
 		modes.push_back(mode[i]);
 		i++;
 	}
-	std::cout << "debug mode = " << mode << std::endl;
+
 	if (mode[i]) {
 		i++;
-		std::cout << "debug ici" << std::endl;
 		while (mode[i]) {
 			pos = mode.find(" ", i);
-			std::cout << "debug: [" << mode.substr(i, pos - i) << "], i = " << i << ", pos = " << pos << std::endl;
 			args.push_back(mode.substr(i, pos - i));
 			if (pos != std::string::npos)
 				i = pos + 1;
@@ -192,7 +190,8 @@ void parsingModes(Channel &channel, std::string mode, std::string &rpl, std::vec
 		}
 	}
 	if (!mode.empty())
-		rpl += MODE(client->getNick(), client->getUser(), "#" + channel.getName(), mode);
+		return MODE(client->getNick(), client->getUser(), "#" + channel.getName(), mode);
+	return std::string();
 }
 
 std::string takeChannelModes(Channel &channel)
@@ -215,6 +214,7 @@ std::string takeChannelModes(Channel &channel)
 void	Messages::modeMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
 	std::string	rpl;
+	std::string rplChannel;
 
 	msg.erase(0, 5);
 	size_t pos = msg.find(" ", 0);
@@ -251,13 +251,17 @@ void	Messages::modeMsg(Client *client, std::string msg, std::vector<Client *> cl
 					rpl = RPL_CHANNELMODEIS(client->getNick(), "#" + name, mode);
 				}
 				else {
-					if (channels[i].isOperator(client))
-						parsingModes(channels[i], mode, rpl, clients, *this, client);
+					if (channels[i].isOperator(client)) {
+						rplChannel = parsingModes(channels[i], mode, rpl, clients, *this, client);
+						if (!rplChannel.empty())
+							_RPL[rplChannel] = channels[i].getMembers();
+					}
 					else
 						rpl += ERR_CHANOPRIVSNEEDED(client->getNick(), channels[i].getName());
 				}
 			}
 		}
 	}
-	_RPL[rpl].push_back(client);
+	if (!rpl.empty())
+		_RPL[rpl].push_back(client);
 }
