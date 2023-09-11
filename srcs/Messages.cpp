@@ -25,13 +25,14 @@ std::map<std::string, std::vector<Client *> >	Messages::getRPL() const { return 
 void Messages::parseMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
 	std::string cmd = msg.substr(0, msg.find(" "));
-	std::string msgs[12] = {"PING", "MODE", "JOIN", "PRIVMSG", "PART", "QUIT", "NICK", "TOPIC", "INVITE", "KICK", "WHO", "WHOIS"};
+	std::string msgs[13] = {"PING", "MODE", "JOIN", "PRIVMSG", "PART", "QUIT", "NICK", "TOPIC", "INVITE", "KICK", "WHO", "WHOIS", "NOTICE"};
 
-	void (Messages::*m[12])(Client *, std::string, std::vector<Client *>, std::vector<Channel>&) = {&Messages::pingMsg,
+	void (Messages::*m[13])(Client *, std::string, std::vector<Client *>, std::vector<Channel>&) = {&Messages::pingMsg,
 		&Messages::modeMsg, &Messages::joinMsg, &Messages::privMsg, &Messages::partMsg, &Messages::quitMsg,
-		&Messages::nickMsg, &Messages::topicMsg, &Messages::inviteMsg, &Messages::kickMsg, &Messages::whoMsg, &Messages::whoisMsg};
+		&Messages::nickMsg, &Messages::topicMsg, &Messages::inviteMsg, &Messages::kickMsg, &Messages::whoMsg,
+		&Messages::whoisMsg, &Messages::noticeMsg};
 
-	for (int i = 0; i < 12; i++) {
+	for (int i = 0; i < 13; i++) {
 		if (msgs[i] == cmd)
 			(this->*m[i])(client, msg, clients, channels);
 	}
