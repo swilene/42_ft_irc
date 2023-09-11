@@ -25,7 +25,7 @@ void	Messages::inviteMsg(Client *client, std::string msg, std::vector<Client *> 
 	for (j = 0; j < channels.size(); j++)
 		if (channels[j].getName() == lowercase(chan))
 			break;
-	
+
 	if (j == channels.size()) {
 		_RPL[ERR_NOSUCHCHANNEL(client->getNick(), chan)].push_back(client); return;
 	}

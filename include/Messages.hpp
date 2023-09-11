@@ -42,6 +42,7 @@
 #define PRIVMSG(nick, msg) (":" + nick + " " + msg)
 #define TOPIC(nick, user, chan, topic) (":" + nick + "!" + user + "@127.0.0.1 TOPIC #" + chan + topic)
 #define INVITE(nick, user, nick2, chan) (":" + nick + "!" + user + "@127.0.0.1 INVITE " + nick2 + " #" + chan + "\r\n")
+#define KICK(nick, user, nick2, chan, comment) (":" + nick + "!" + user + "@127.0.0.1 KICK #" + chan + " " + nick2 + " :" + comment + "\r\n")
 #define QUIT(nick, user, quitMsg) (":" + nick + "!" + user + "@127.0.0.1 QUIT" + quitMsg)
 
 #define BAD_MODE(c) ("Unknown mode character " + c + "\r\n")
@@ -55,6 +56,8 @@
 #define ERR_NOTONCHANNEL(nick, chan) (":127.0.0.1 442 " + nick + " #" + chan + " :You're not on that channel\r\n")
 #define ERR_USERONCHANNEL(nick, nick2, chan) (":127.0.0.1 443 " + nick + " " + nick2 + " #" + chan + " :is already on channel\r\n")
 #define ERR_NEEDMOREPARAMS(nick, cmd) (":127.0.0.1 461 " + nick + " " + cmd + " :Not enough parameters\r\n")
+#define ERR_PASSWDMISMATCH(nick) (":127.0.0.1 464 " + nick + " :Password incorrect\r\n")
+#define ERR_CHANNELISFULL(nick, chan) (":127.0.0.1 471 " + nick + " #" + chan + " :Cannot join channel (+l)\r\n")
 #define ERR_INVITEONLYCHAN(nick, chan) (":127.0.0.1 473 " + nick + " #" + chan + " :Cannot join channel (+i)\r\n")
 #define ERR_BADCHANNELKEY(nick, chan) (":127.0.0.1 475 " + nick + " #" + chan + " :Cannot join channel (+k)\r\n")
 #define ERR_CHANOPRIVSNEEDED(nick, chan) (":127.0.0.1 482 " + nick + " #" + chan + " :You're not channel operator\r\n")
@@ -82,7 +85,7 @@ class Messages
 
 		void	parseMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	sendRPL(Client *client);
-		void	registerMsg(Client *client);
+		void	registerMsg(Client *client, std::vector<Client *> clients, std::vector<pollfd> newpollfd, std::string password);
 		void	pingMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	modeMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	joinMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
@@ -94,6 +97,9 @@ class Messages
 		void	nickMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	topicMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	inviteMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
+		void	kickMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
+			void	kickParse(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
+			void	kickExec(Client *client, std::vector<Client *> clients, std::vector<Channel> &channels, std::vector<std::string> chans, std::string target, std::string comment);
 		void	whoMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 
 		std::string	lowercase(std::string str);

@@ -36,10 +36,8 @@ void	Messages::joinMsg(Client *client, std::string msg, std::vector<Client *> cl
 
 void	Messages::join2(Client *client, std::vector<Channel> &channels, std::string chan, std::string pw)
 {
-	(void)pw; // a faire
-
 	size_t		i = 0;
-	std::string	mainRpl;  // full RPL for new member
+	std::string	mainRpl;
 
 	while (i < channels.size()) {
 		if (channels[i].getName() == lowercase(chan))
@@ -51,18 +49,19 @@ void	Messages::join2(Client *client, std::vector<Channel> &channels, std::string
 		channels.push_back(newchan);
 		mainRpl = JOIN(client->getNick(), client->getUser(), chan);
 	}
-	else {  //check for pw and invite-only
-		if (channels[i].getInviteOnly() == true && !channels[i].isInvited(client)) {   // Check avant ou apres PW ?
-			_RPL[ERR_INVITEONLYCHAN(client->getNick(), chan)].push_back(client); return;   // PAS TESTER
+	else {   //check for pw & invite-only & user limit
+		if (channels[i].getInviteOnly() == true && !channels[i].isInvited(client)) {
+			_RPL[ERR_INVITEONLYCHAN(client->getNick(), chan)].push_back(client); return;
 		}
-		if (channels[i].getPassword().empty() || channels[i].getPassword() == pw) {
-			channels[i].addMember(client);
-			channels[i].rmInvited(client);
-			_RPL[JOIN(client->getNick(), client->getUser(), chan)] = channels[i].getMembers();	
+		if (!channels[i].getPassword().empty() && channels[i].getPassword() != pw) {
+			_RPL[ERR_BADCHANNELKEY(client->getNick(), chan)].push_back(client); return;
 		}
-		else {  // wrong password
-			_RPL[ERR_BADCHANNELKEY(client->getNick(), chan)].push_back(client); return;  // PAS TESTER
+		if (channels[i].getUserLimit() > 0 && (size_t)channels[i].getUserLimit() <= channels[i].getMembers().size()) {
+			_RPL[ERR_CHANNELISFULL(client->getNick(), chan)].push_back(client); return;
 		}
+		channels[i].addMember(client);
+		channels[i].rmInvited(client);
+		_RPL[JOIN(client->getNick(), client->getUser(), chan)] = channels[i].getMembers();	
 	}
 	// RPL_TOPIC
 	if (!channels[i].getTopic().empty())
