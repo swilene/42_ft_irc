@@ -1,7 +1,5 @@
 #include "Messages.hpp"
 
-// "/mode #chan b" == crash
-
 std::string modeOperator(Channel &channel, std::vector<std::string> args, size_t &j, std::string &newMode, bool set, std::vector<Client *> clients, std::string &rpl, Messages msg)
 {
 	bool err = false;
@@ -19,7 +17,7 @@ std::string modeOperator(Channel &channel, std::vector<std::string> args, size_t
 			break;
 	}
 	if (i == clients.size()) {
-		rpl += ERR_NOSUCHNICK(user, user);   // Fais l'erreur "not on channel" aussi, bzr
+		rpl += ERR_NOSUCHNICK(user, user);
 		err = true;
 	}
 	i = 0;
@@ -29,7 +27,7 @@ std::string modeOperator(Channel &channel, std::vector<std::string> args, size_t
 				channel.addOperator(channel.getMembers()[i]);
 			else
 				channel.rmOperator(channel.getMembers()[i]);
-			break;   //  /!\ OUBLI, verif les autres loop
+			break;
 		}
 	}
 	if (i == channel.getMembers().size()) {
@@ -113,12 +111,14 @@ void parsingModes(Channel &channel, std::string mode, std::string &rpl, std::vec
 		modes.push_back(mode[i]);
 		i++;
 	}
-	i++;
+	std::cout << "debug mode = " << mode << std::endl;
 	if (mode[i]) {
+		i++;
+		std::cout << "debug ici" << std::endl;
 		while (mode[i]) {
 			pos = mode.find(" ", i);
-			args.push_back(mode.substr(i, pos - i));
 			std::cout << "debug: [" << mode.substr(i, pos - i) << "], i = " << i << ", pos = " << pos << std::endl;
+			args.push_back(mode.substr(i, pos - i));
 			if (pos != std::string::npos)
 				i = pos + 1;
 			else
@@ -191,7 +191,8 @@ void parsingModes(Channel &channel, std::string mode, std::string &rpl, std::vec
 			mode += user;
 		}
 	}
-	rpl += MODE(client->getNick(), client->getUser(), "#" + channel.getName(), mode);
+	if (!mode.empty())
+		rpl += MODE(client->getNick(), client->getUser(), "#" + channel.getName(), mode);
 }
 
 std::string takeChannelModes(Channel &channel)
@@ -228,7 +229,7 @@ void	Messages::modeMsg(Client *client, std::string msg, std::vector<Client *> cl
 		name.erase(name.size() - 2, 2);
 	if (name[0] != '#') {
 		for (size_t i = 0; i < clients.size(); i++) {
-			if (clients[i]->getNick() == name) {    //lowercase ??
+			if (lowercase(clients[i]->getNick()) == lowercase(name)) {
 				if (mode.empty())
 					rpl = RPL_UMODEIS(name);
 				else
@@ -242,8 +243,10 @@ void	Messages::modeMsg(Client *client, std::string msg, std::vector<Client *> cl
 	else if (name[0] == '#') {
 		name.erase(0, 1);
 		for (size_t i = 0; i < channels.size(); i++) {
-			if (channels[i].getName() == name) {   //lowercase ??
-				if (mode.empty()) {
+			if (lowercase(channels[i].getName()) == lowercase(name)) {
+				if (mode == "b")
+					rpl = RPL_ENDOFBANLIST(client->getNick(), "#" + name);
+				else if (mode.empty()) {
 					mode = takeChannelModes(channels[i]);
 					rpl = RPL_CHANNELMODEIS(client->getNick(), "#" + name, mode);
 				}
