@@ -58,7 +58,7 @@ void Messages::registerMsg(Client *client, std::vector<Client *> clients, std::v
 
 	while (fullbuf.find("USER", 0) == std::string::npos) {
 		ssize_t recvd = recv(client->getFd(), buf, sizeof(buf), 0);
-		if (recvd < 0) {
+		if (recvd <= 0) {
 			std::cout << "Error recv()" << std::endl;
 			return ;
 		}
