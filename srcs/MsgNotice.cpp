@@ -14,6 +14,8 @@ void	Messages::noticeMsg(Client *client, std::string msg, std::vector<Client *> 
 				for (size_t i = 0; _RPL[rpl].size(); i++) {
 					if (_RPL[rpl][i] == client) {
 						_RPL[rpl].erase(_RPL[rpl].begin() + i);
+						if (_RPL[rpl].size() == 0)
+							_RPL.clear();
 						return;
 					}
 				}
