@@ -147,7 +147,12 @@ void Server::clientAlreadyExists(int pos)
 	else {
 		buf[recvd] = '\0';
 		std::cout << "client n" << pos << ": " << buf << std::endl;
-		_msgReceived = buf;
+		
+		_clients[pos - 1]->addBufmsg(buf);
+		if (_clients[pos - 1]->getBufmsg().find("\r\n") != std::string::npos) {
+			_msgReceived = _clients[pos - 1]->getBufmsg();
+			_clients[pos - 1]->rmBufmsg();
+		}
 	}
 }
 

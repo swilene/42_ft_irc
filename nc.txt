@@ -1,0 +1,8 @@
+CAP LS
+
+PASS mdp
+
+NICK userNC
+
+USER netcat netcat 127.0.0.1 :realname
+
