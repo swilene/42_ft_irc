@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 12:08:18 by saguesse          #+#    #+#             */
-/*   Updated: 2023/09/11 15:40:59 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/09/12 15:38:30 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "Channel.hpp"
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <map>
@@ -62,7 +63,9 @@
 #define ERR_CHANNELISFULL(nick, chan) (":127.0.0.1 471 " + nick + " #" + chan + " :Cannot join channel (+l)\r\n")
 #define ERR_INVITEONLYCHAN(nick, chan) (":127.0.0.1 473 " + nick + " #" + chan + " :Cannot join channel (+i)\r\n")
 #define ERR_BADCHANNELKEY(nick, chan) (":127.0.0.1 475 " + nick + " #" + chan + " :Cannot join channel (+k)\r\n")
+#define ERR_NOPRIVILEGES(nick) (":127.0.0.1 475 " + nick + " :Permission Denied - You're not an IRC operator\r\n")
 #define ERR_CHANOPRIVSNEEDED(nick, chan) (":127.0.0.1 482 " + nick + " #" + chan + " :You're not channel operator\r\n")
+#define ERR_NOOPERHOST(nick) (":127.0.0.1 491 " + nick + " :No Oper block for your host\r\n")
 
 #define RPL_UMODEIS(nick) (":127.0.0.1 221 " + nick + " +i \r\n")
 #define RPL_WHOISUSER(nick, nick2, user, realname) (":127.0.0.1 311 " + nick + " " + nick2 + " " + user + " localhost * :" + realname + "\r\n")
@@ -71,6 +74,7 @@
 #define RPL_TOPIC(nick, chan, topic) (":127.0.0.1 332 " + nick + " #" + chan + " :" + topic + "\r\n")
 #define RPL_ENDOFNAMES(nick, chan) (":127.0.0.1 366 " + nick + " #" + chan + " :End of NAMES list\r\n")
 #define RPL_INVITING(nick, nick2, chan) (":127.0.0.1 341 " + nick + " #" + chan + " " + nick2 + "\r\n")
+#define RPL_YOUREOPER(nick) (":127.0.0.1 368 " + nick + " :You are now an IRC operator\r\n")
 
 class Server;
 
@@ -108,6 +112,8 @@ class Messages
 			void	kickExec(Client *client, std::vector<Client *> clients, std::vector<Channel> &channels, std::vector<std::string> chans, std::string target, std::string comment);
 		void	whoMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	whoisMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
+		void	dieMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
+		void	operMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 
 		std::string	lowercase(std::string str);
 };

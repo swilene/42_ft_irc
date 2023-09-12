@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 15:00:31 by saguesse          #+#    #+#             */
-/*   Updated: 2023/08/29 19:38:16 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/09/12 15:32:39 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ class Client
 		std::string _user, _nick, _realname, _host;  // _host necessaire ?
 		int			_fd;
 		bool		_registered;
+		bool		_userOperator;
 
 	public:
 		Client(int fd);
@@ -36,6 +37,7 @@ class Client
 		void setRealname(std::string nick);
 		void setHost(std::string host);
 		void setRegistered();
+		void setUserOperator();
 
 		// getter
 		std::string getUser() const;
@@ -44,6 +46,7 @@ class Client
 		std::string getHost() const;
 		int 		getFd() const;
 		bool		getRegistered() const;
+		bool		getUserOperator() const;
 };
 
 #endif

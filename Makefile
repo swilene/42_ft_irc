@@ -6,7 +6,7 @@
 #    By: saguesse <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/25 12:13:17 by saguesse          #+#    #+#              #
-#    Updated: 2023/09/11 13:44:09 by saguesse         ###   ########.fr        #
+#    Updated: 2023/09/12 15:29:14 by saguesse         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -40,6 +40,8 @@ SRCS_FILES = main.cpp \
 			 MsgKick.cpp \
 			 MsgWho.cpp \
 			 MsgWhois.cpp \
+			 MsgDie.cpp \
+			 MsgOper.cpp \
 			 Channel.cpp
 SRCS = $(SRCS_FILES:%=$(SRCS_DIR)/%)
 

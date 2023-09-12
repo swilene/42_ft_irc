@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 14:30:00 by saguesse          #+#    #+#             */
-/*   Updated: 2023/09/11 16:03:03 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/09/12 15:26:27 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,8 @@ void Server::mainLoop()
 					}
 					break;
 				}
+				else if (_pollfdClients[0].revents & POLLERR)
+					exitServer = true;
 				// else if (it->revents & POLLERR)
 			}
 		}
