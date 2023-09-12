@@ -30,3 +30,8 @@ std::string Client::getRealname() const { return (_realname); }
 std::string Client::getHost() const { return (_host); }
 int 		Client::getFd() const { return(_fd); }
 bool		Client::getRegistered() const { return _registered; }
+std::string	Client::getBufmsg() const { return _bufMsg; }
+#include <iostream>
+void	Client::addBufmsg(std::string buf) { _bufMsg += buf; }
+
+void	Client::rmBufmsg() { _bufMsg.clear(); }
