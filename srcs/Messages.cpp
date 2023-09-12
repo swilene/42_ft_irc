@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 12:03:00 by saguesse          #+#    #+#             */
-/*   Updated: 2023/09/11 16:07:23 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/09/12 15:36:36 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,14 +25,14 @@ std::map<std::string, std::vector<Client *> >	Messages::getRPL() const { return 
 void Messages::parseMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
 	std::string cmd = msg.substr(0, msg.find(" "));
-	std::string msgs[13] = {"PING", "MODE", "JOIN", "PRIVMSG", "PART", "QUIT", "NICK", "TOPIC", "INVITE", "KICK", "WHO", "WHOIS", "NOTICE"};
+	std::string msgs[15] = {"PING", "MODE", "JOIN", "PRIVMSG", "PART", "QUIT", "NICK", "TOPIC", "INVITE", "KICK", "WHO", "WHOIS", "NOTICE", "OPER", "die"};
 
-	void (Messages::*m[13])(Client *, std::string, std::vector<Client *>, std::vector<Channel>&) = {&Messages::pingMsg,
+	void (Messages::*m[15])(Client *, std::string, std::vector<Client *>, std::vector<Channel>&) = {&Messages::pingMsg,
 		&Messages::modeMsg, &Messages::joinMsg, &Messages::privMsg, &Messages::partMsg, &Messages::quitMsg,
 		&Messages::nickMsg, &Messages::topicMsg, &Messages::inviteMsg, &Messages::kickMsg, &Messages::whoMsg,
-		&Messages::whoisMsg, &Messages::noticeMsg};
+		&Messages::whoisMsg, &Messages::noticeMsg, &Messages::operMsg, &Messages::dieMsg};
 
-	for (int i = 0; i < 13; i++) {
+	for (int i = 0; i < 15; i++) {
 		if (msgs[i] == cmd)
 			(this->*m[i])(client, msg, clients, channels);
 	}

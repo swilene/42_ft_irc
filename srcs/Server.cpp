@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 14:30:00 by saguesse          #+#    #+#             */
-/*   Updated: 2023/09/11 16:03:03 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/09/12 15:26:27 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,9 +94,6 @@ void Server::mainLoop()
 		_pollfdClients.insert(_pollfdClients.end(), _pollfdNew.begin(), _pollfdNew.end());
 		_pollfdNew.clear();
 	}
-	// for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
-	// 	delete *it;
-	// _clients.clear();
 }
 
 void Server::newClient()
@@ -157,7 +154,7 @@ void Server::clientAlreadyExists(int pos)
 void Server::handlePollerr(int pos)
 {
 	if (pos == 0)
-		std::cout << "LISTENER POLLERR ->> DIE ?" << std::endl;
+		exitServer = true;
 	else {
 		for (size_t i = 0; i < _channels.size(); i++) {
 			_channels[i].rmMember(_clients[pos - 1]);
