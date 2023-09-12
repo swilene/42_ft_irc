@@ -34,7 +34,10 @@ void	Messages::part2(Client *client, std::vector<Channel> &channels, std::string
 		if (channels[i].getName() == lowercase(chan)) {
 			if (channels[i].isMember(client)) {
 				_RPL[PART(client->getNick(), client->getUser(), chan, partMsg)] = channels[i].getMembers();
+				
 				channels[i].rmMember(client);
+				if (channels[i].getMembers().size() == 0)
+					channels.erase(channels.begin() + i);
 				return; 
 			}
 			_RPL[ERR_NOTONCHANNEL(client->getNick(), chan)].push_back(client); return;

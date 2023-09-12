@@ -67,6 +67,7 @@ class Server
 		void mainLoop();
 		void newClient();
 		void clientAlreadyExists(int pos);
+		void handlePollerr(int pos);
 
 		class getaddrinfoException : public std::exception
 		{

@@ -24,6 +24,7 @@ class Client
 	private:
 		std::string _user, _nick, _realname, _host;  // _host necessaire ?
 		int			_fd;
+		std::string _bufMsg;
 		bool		_registered;
 		bool		_userOperator;
 
@@ -46,7 +47,12 @@ class Client
 		std::string getHost() const;
 		int 		getFd() const;
 		bool		getRegistered() const;
-		bool		getUserOperator() const;
+	  bool		getUserOperator() const;
+    std::string getBufmsg() const;
+
+		void addBufmsg(std::string buf);
+		void rmBufmsg();
+
 };
 
 #endif

@@ -36,3 +36,8 @@ std::string Client::getHost() const { return (_host); }
 int 		Client::getFd() const { return(_fd); }
 bool		Client::getRegistered() const { return _registered; }
 bool		Client::getUserOperator() const { return _userOperator; }
+std::string	Client::getBufmsg() const { return _bufMsg; }
+
+void	Client::addBufmsg(std::string buf) { _bufMsg += buf; }
+
+void	Client::rmBufmsg() { _bufMsg.clear(); }

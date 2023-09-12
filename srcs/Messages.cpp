@@ -25,19 +25,14 @@ std::map<std::string, std::vector<Client *> >	Messages::getRPL() const { return 
 void Messages::parseMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
 	std::string cmd = msg.substr(0, msg.find(" "));
-	if (msg.find(" ") != std::string::npos)
-		cmd = msg.substr(0, msg.find(" ", 0));
-	else
-		cmd = msg.erase(msg.size() - 2, 2);
+	std::string msgs[15] = {"PING", "MODE", "JOIN", "PRIVMSG", "PART", "QUIT", "NICK", "TOPIC", "INVITE", "KICK", "WHO", "WHOIS", "NOTICE", "OPER", "die"};
 
-	std::string msgs[14] = {"PING", "MODE", "JOIN", "PRIVMSG", "PART", "QUIT", "NICK", "TOPIC", "INVITE", "KICK", "WHO", "WHOIS", "OPER", "die"};
-
-	void (Messages::*m[14])(Client *, std::string, std::vector<Client *>, std::vector<Channel>&) = {&Messages::pingMsg,
+	void (Messages::*m[15])(Client *, std::string, std::vector<Client *>, std::vector<Channel>&) = {&Messages::pingMsg,
 		&Messages::modeMsg, &Messages::joinMsg, &Messages::privMsg, &Messages::partMsg, &Messages::quitMsg,
-		&Messages::nickMsg, &Messages::topicMsg, &Messages::inviteMsg, &Messages::kickMsg, &Messages::whoMsg, &Messages::whoisMsg,
-		&Messages::operMsg, &Messages::dieMsg};
+		&Messages::nickMsg, &Messages::topicMsg, &Messages::inviteMsg, &Messages::kickMsg, &Messages::whoMsg,
+		&Messages::whoisMsg, &Messages::noticeMsg, &Messages::operMsg, &Messages::dieMsg};
 
-	for (int i = 0; i < 14; i++) {
+	for (int i = 0; i < 15; i++) {
 		if (msgs[i] == cmd)
 			(this->*m[i])(client, msg, clients, channels);
 	}
@@ -63,7 +58,7 @@ void Messages::registerMsg(Client *client, std::vector<Client *> clients, std::v
 
 	while (fullbuf.find("USER", 0) == std::string::npos) {
 		ssize_t recvd = recv(client->getFd(), buf, sizeof(buf), 0);
-		if (recvd < 0) {
+		if (recvd <= 0) {
 			std::cout << "Error recv()" << std::endl;
 			return ;
 		}

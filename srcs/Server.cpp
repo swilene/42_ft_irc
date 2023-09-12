@@ -16,7 +16,11 @@ extern bool exitServer;
 
 Server::Server(std::string port, std::string password) : _port(port), _password(password) {}
 
-Server::~Server() {}
+Server::~Server()
+{
+	for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+		delete *it;
+}
 
 std::string Server::getMsgReceived() const { return(_msgReceived); }
 
@@ -74,26 +78,22 @@ void Server::mainLoop()
 						newClient();
 					else {
 						clientAlreadyExists(i);
-						if (_msgReceived.empty())
-							i--;  // deleted a client
-						else {
+						if (!_msgReceived.empty()) {
 							_msg.parseMsg(_msgReceived, _clients[i - 1], _clients, _channels);
 							_msgReceived.clear();
 						}
 					}
 					break;
 				}
-				else if (_pollfdClients[0].revents & POLLERR)
-					exitServer = true;
-				// else if (it->revents & POLLERR)
+				else if (_pollfdClients[i].revents & POLLERR) {
+					handlePollerr(i);
+					break;
+				}
 			}
 		}
 		_pollfdClients.insert(_pollfdClients.end(), _pollfdNew.begin(), _pollfdNew.end());
 		_pollfdNew.clear();
 	}
-	for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
-		delete *it;
-	_clients.clear();
 }
 
 void Server::newClient()
@@ -131,14 +131,38 @@ void Server::clientAlreadyExists(int pos)
 	else if (recvd == 0) {  // == disconnected
 		delete _clients[pos - 1];
 		_pollfdClients.erase(_pollfdClients.begin() + pos);
-		for (size_t i = 0; i < _channels.size(); i++)
-			_channels[i].rmMember(_clients[pos - 1]);  //pas besoin de verif si membre
+		for (size_t i = 0; i < _channels.size(); i++) {
+			_channels[i].rmMember(_clients[pos - 1]);
+			if (_channels[i].getMembers().size() == 0)
+				_channels.erase(_channels.begin() + i);
+		}
 		_clients.erase(_clients.begin() + pos - 1);
 		std::cout << "Client n" << pos << " disconnected" << std::endl;
 	}
 	else {
 		buf[recvd] = '\0';
 		std::cout << "client n" << pos << ": " << buf << std::endl;
-		_msgReceived = buf;
+		
+		_clients[pos - 1]->addBufmsg(buf);
+		if (_clients[pos - 1]->getBufmsg().find("\r\n") != std::string::npos) {
+			_msgReceived = _clients[pos - 1]->getBufmsg();
+			_clients[pos - 1]->rmBufmsg();
+		}
+	}
+}
+
+void Server::handlePollerr(int pos)
+{
+	if (pos == 0)
+		exitServer = true;
+	else {
+		for (size_t i = 0; i < _channels.size(); i++) {
+			_channels[i].rmMember(_clients[pos - 1]);
+			if (_channels[i].getMembers().size() == 0) {
+				_channels.erase(_channels.begin() + i);
+				i--;
+			}
+		}
+		_clients.erase(_clients.begin() + pos - 1);
 	}
 }

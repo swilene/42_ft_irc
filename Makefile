@@ -40,6 +40,7 @@ SRCS_FILES = main.cpp \
 			 MsgKick.cpp \
 			 MsgWho.cpp \
 			 MsgWhois.cpp \
+			 MsgNotice.cpp \
 			 MsgDie.cpp \
 			 MsgOper.cpp \
 			 Channel.cpp
