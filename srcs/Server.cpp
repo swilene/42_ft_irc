@@ -78,9 +78,7 @@ void Server::mainLoop()
 						newClient();
 					else {
 						clientAlreadyExists(i);
-						if (_msgReceived.empty())
-							i--;  // deleted a client
-						else {
+						if (!_msgReceived.empty()) {
 							_msg.parseMsg(_msgReceived, _clients[i - 1], _clients, _channels);
 							_msgReceived.clear();
 						}
