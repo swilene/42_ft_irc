@@ -42,7 +42,7 @@
 #define JOIN(nick, user, chan) (":" + nick + "!" + user + "@127.0.0.1 JOIN #" + chan + "\r\n")
 #define PART(nick, user, chan, partmsg) (":" + nick + "!" + user + "@127.0.0.1 PART #" + chan + partmsg)
 #define PRIVMSG(nick, msg) (":" + nick + " " + msg)
-#define NOTICE(nick, msg) (":" + nick + " " + msg)
+#define NOTICE(nick, user, msg) (":" + nick + "!~" + user + "@localhost " + msg)
 #define TOPIC(nick, user, chan, topic) (":" + nick + "!" + user + "@127.0.0.1 TOPIC #" + chan + topic)
 #define INVITE(nick, user, nick2, chan) (":" + nick + "!" + user + "@127.0.0.1 INVITE " + nick2 + " #" + chan + "\r\n")
 #define KICK(nick, user, nick2, chan, comment) (":" + nick + "!" + user + "@127.0.0.1 KICK #" + chan + " " + nick2 + " :" + comment + "\r\n")
