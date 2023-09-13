@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 12:08:18 by saguesse          #+#    #+#             */
-/*   Updated: 2023/09/12 15:38:30 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/09/13 16:28:06 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@
 #define ERR_CHANNELISFULL(nick, chan) (":127.0.0.1 471 " + nick + " #" + chan + " :Cannot join channel (+l)\r\n")
 #define ERR_INVITEONLYCHAN(nick, chan) (":127.0.0.1 473 " + nick + " #" + chan + " :Cannot join channel (+i)\r\n")
 #define ERR_BADCHANNELKEY(nick, chan) (":127.0.0.1 475 " + nick + " #" + chan + " :Cannot join channel (+k)\r\n")
-#define ERR_NOPRIVILEGES(nick) (":127.0.0.1 475 " + nick + " :Permission Denied - You're not an IRC operator\r\n")
+#define ERR_NOPRIVILEGES(nick) (":127.0.0.1 481 " + nick + " :Permission Denied - You're not an IRC operator\r\n")
 #define ERR_CHANOPRIVSNEEDED(nick, chan) (":127.0.0.1 482 " + nick + " #" + chan + " :You're not channel operator\r\n")
 #define ERR_NOOPERHOST(nick) (":127.0.0.1 491 " + nick + " :No Oper block for your host\r\n")
 
