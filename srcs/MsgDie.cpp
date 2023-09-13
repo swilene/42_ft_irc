@@ -7,6 +7,7 @@ void Messages::dieMsg(Client *client, std::string msg, std::vector<Client *> cli
 	(void) msg;
 	(void) clients;
 	(void) channels;
+
 	if (client->getUserOperator())
 		exitServer = true;
 	else
