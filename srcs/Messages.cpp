@@ -76,7 +76,7 @@ void Messages::registerMsg(Client *client, std::vector<Client *> clients, std::v
 	nick = nick.substr(0, nick.find("\r\n"));
 
 	// Check for password
-	if (fullbuf.find("\r\nPASS ") == std::string::npos) {
+	if (fullbuf.find("PASS ") == std::string::npos) {
 		std::string rpl = ERR_PASSWDMISMATCH(nick);
 		rpl += "ERROR :Closing Link: 127.0.0.1 (Bad Password)\r\n";  // mettre ?
 
@@ -85,10 +85,11 @@ void Messages::registerMsg(Client *client, std::vector<Client *> clients, std::v
 		return;
 	}
 
-	std::string pass = fullbuf.substr(fullbuf.find("\r\nPASS") + 7, std::string::npos);
+	std::string pass = fullbuf.substr(fullbuf.find("PASS") + 5, std::string::npos);
 	pass = pass.substr(0, pass.find("\r\n"));
 
 	if (pass != password) {  // case sensitive ??
+		std::cout << "PASS ERROR: [" << pass << "] & [" << password << "]" << std::endl;
 		std::string rpl = ERR_PASSWDMISMATCH(nick);
 		rpl += "ERROR :Closing Link: 127.0.0.1 (Bad Password)\r\n";  // mettre ?
 
