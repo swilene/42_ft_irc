@@ -74,7 +74,7 @@
 #define RPL_NOTOPIC(nick, chan) (":127.0.0.1 331 " + nick + " #" + chan + " :No topic is set\r\n")
 #define RPL_TOPIC(nick, chan, topic) (":127.0.0.1 332 " + nick + " #" + chan + " :" + topic + "\r\n")
 #define RPL_ENDOFNAMES(nick, chan) (":127.0.0.1 366 " + nick + " #" + chan + " :End of NAMES list\r\n")
-#define RPL_INVITING(nick, nick2, chan) (":127.0.0.1 341 " + nick + " #" + chan + " " + nick2 + "\r\n")
+#define RPL_INVITING(nick, nick2, chan) (":127.0.0.1 341 " + nick + " " + nick2 + " #" + chan + "\r\n")
 #define RPL_YOUREOPER(nick) (":127.0.0.1 368 " + nick + " :You are now an IRC operator\r\n")
 
 class Server;
