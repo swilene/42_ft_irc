@@ -6,7 +6,7 @@ Channel::Channel(std::string name, Client *creator) : _name(name)
 	_operators.push_back(creator);
 	// verif param de bases
 	_inviteOnly = false;
-	_topicRights = false;
+	_topicRights = true;
 	_userLimit = 0;
 }
 

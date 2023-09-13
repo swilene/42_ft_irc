@@ -24,8 +24,13 @@ std::map<std::string, std::vector<Client *> >	Messages::getRPL() const { return 
 
 void Messages::parseMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
-	std::string cmd = msg.substr(0, msg.find(" "));
+	std::string cmd;
 	std::string msgs[15] = {"PING", "MODE", "JOIN", "PRIVMSG", "PART", "QUIT", "NICK", "TOPIC", "INVITE", "KICK", "WHO", "WHOIS", "NOTICE", "OPER", "die"};
+
+	if (msg.find(" ") != std::string::npos)
+		cmd = msg.substr(0, msg.find(" ", 0));
+	else
+		cmd = msg.erase(msg.size() - 2, 2);
 
 	void (Messages::*m[15])(Client *, std::string, std::vector<Client *>, std::vector<Channel>&) = {&Messages::pingMsg,
 		&Messages::modeMsg, &Messages::joinMsg, &Messages::privMsg, &Messages::partMsg, &Messages::quitMsg,
