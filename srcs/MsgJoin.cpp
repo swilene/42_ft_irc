@@ -7,7 +7,7 @@ void	Messages::joinMsg(Client *client, std::string msg, std::vector<Client *> cl
 	// PARSE ALL CHANNELS + PASSWORDS IN MAP
 	std::string chans = msg.substr(5, msg.find(' ', 6) - 5);
 	std::string passwords;
-	if (chans.find("\r\n", 0) == std::string::npos) {  // == passwords
+	if (chans.find("\r\n", 0) == std::string::npos) {
 		passwords = msg.substr(msg.find(' ', 6) + 1, std::string::npos);
 		passwords.erase(passwords.size() - 2, 2);
 	}
@@ -28,7 +28,7 @@ void	Messages::joinMsg(Client *client, std::string msg, std::vector<Client *> cl
 		if (!passwords.empty())
 			passwords = passwords.substr(passwords.find(',', 0) + 1, std::string::npos);
 	}
-	elems[chans.erase(0, 1)] = passwords;  //last elem
+	elems[chans.erase(0, 1)] = passwords;
 
 	for (std::map<std::string, std::string>::iterator it = elems.begin(); it != elems.end(); it++)
 		join2(client, channels, it->first, it->second);
@@ -44,12 +44,13 @@ void	Messages::join2(Client *client, std::vector<Channel> &channels, std::string
 			break;
 		i++;
 	}
+
 	if (i == channels.size() || channels.size() == 0) {
 		Channel newchan(lowercase(chan), client);
 		channels.push_back(newchan);
 		mainRpl = JOIN(client->getNick(), client->getUser(), chan);
 	}
-	else {   //check for pw & invite-only & user limit
+	else {
 		if (channels[i].getInviteOnly() == true && !channels[i].isInvited(client)) {
 			_RPL[ERR_INVITEONLYCHAN(client->getNick(), chan)].push_back(client); return;
 		}
@@ -63,6 +64,7 @@ void	Messages::join2(Client *client, std::vector<Channel> &channels, std::string
 		channels[i].rmInvited(client);
 		_RPL[JOIN(client->getNick(), client->getUser(), chan)] = channels[i].getMembers();	
 	}
+
 	// RPL_TOPIC
 	if (!channels[i].getTopic().empty())
 		mainRpl += RPL_TOPIC(client->getNick(), chan, channels[i].getTopic());

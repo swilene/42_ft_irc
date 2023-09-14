@@ -20,7 +20,7 @@ void	Messages::kickParse(Client *client, std::string msg, std::vector<Client *> 
 	std::vector<std::string> chans;
 
 	while (argChans.find(',') != std::string::npos) {
-		chans.push_back(argChans.substr(0, argChans.find(',')));  // from [1] ?
+		chans.push_back(argChans.substr(0, argChans.find(',')));
 		argChans = argChans.substr(argChans.find(',') + 1, std::string::npos);
 	}
 	chans.push_back(argChans);
@@ -38,8 +38,6 @@ void	Messages::kickParse(Client *client, std::string msg, std::vector<Client *> 
 
 void	Messages::kickExec(Client *client, std::vector<Client *> clients, std::vector<Channel> &channels, std::vector<std::string> chans, std::string target, std::string comment)
 {
-	// chans[0] only ????
-
 	chans[0].erase(0, 1);
 
 	size_t	i;

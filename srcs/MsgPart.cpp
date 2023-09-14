@@ -8,7 +8,8 @@ void	Messages::partMsg(Client *client, std::string msg, std::vector<Client *> cl
 	std::vector<std::string> chans;
 	msg.erase(0,5);
 
-	if (msg.find(' ', 0) != std::string::npos) {  //== if part message
+	// get part message
+	if (msg.find(' ', 0) != std::string::npos) {
 		partMsg = msg.substr(msg.find(' ', 0), std::string::npos);
 		msg = msg.substr(0, msg.find(' ', 0));
 	}
@@ -16,6 +17,7 @@ void	Messages::partMsg(Client *client, std::string msg, std::vector<Client *> cl
 		partMsg = "\r\n";
 		msg = msg.substr(0, msg.find("\r\n", 0));
 	}
+
 	// get channels to leave
 	while (msg.find(',', 0) != std::string::npos) {
 		chans.push_back(msg.substr(1, msg.find(',', 0) - 1));

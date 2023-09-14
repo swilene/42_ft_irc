@@ -127,7 +127,8 @@ void	Server::clientAlreadyExists(int pos)
 
 	if (recvd < 0)
 		std::cout << "Error recv()" << std::endl;
-	else if (recvd == 0) {  // == disconnected
+	// Disconnected
+	else if (recvd == 0) {
 		delete _clients[pos - 1];
 		_pollfdClients.erase(_pollfdClients.begin() + pos);
 		for (size_t i = 0; i < _channels.size(); i++) {
@@ -138,6 +139,7 @@ void	Server::clientAlreadyExists(int pos)
 		_clients.erase(_clients.begin() + pos - 1);
 		std::cout << "Client n" << pos << " disconnected" << std::endl;
 	}
+	// Message to receive
 	else {
 		buf[recvd] = '\0';
 		std::cout << "client n" << pos << ": " << buf << std::endl;
@@ -157,12 +159,14 @@ void	Server::completeRegistration(int pos)
 
 	if (recvd < 0)
 		std::cout << "Error recv()" << std::endl;
-	else if (recvd == 0) {  // == disconnected
+	// Disconnected
+	else if (recvd == 0) {
 		delete _clients[pos - 1];
 		_pollfdClients.erase(_pollfdClients.begin() + pos);
 		_clients.erase(_clients.begin() + pos - 1);
 		std::cout << "Client n" << pos << " disconnected" << std::endl;
 	}
+	// Message to receive
 	else {
 		buf[recvd] = '\0';
 		std::cout << "client n" << pos << ": " << buf << std::endl;

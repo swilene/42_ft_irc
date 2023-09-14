@@ -16,13 +16,13 @@
 #include <string>
 
 #include <cctype>
-#include <unistd.h> //close
+#include <unistd.h>
 #include <poll.h>
 
 class Client
 {
 	private:
-		std::string _user, _nick, _realname, _host;  // _host necessaire ?
+		std::string _user, _nick, _realname, _host;
 		int			_fd;
 		std::string _bufMsg;
 		bool		_registered;
