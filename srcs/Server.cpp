@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 14:30:00 by saguesse          #+#    #+#             */
-/*   Updated: 2023/09/12 15:26:27 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/09/14 17:49:51 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,12 +137,10 @@ void	Server::clientAlreadyExists(int pos)
 				_channels.erase(_channels.begin() + i);
 		}
 		_clients.erase(_clients.begin() + pos - 1);
-		std::cout << "Client n" << pos << " disconnected" << std::endl;
 	}
 	// Message to receive
 	else {
 		buf[recvd] = '\0';
-		std::cout << "client n" << pos << ": " << buf << std::endl;
 		
 		_clients[pos - 1]->addBufmsg(buf);
 		if (_clients[pos - 1]->getBufmsg().find("\r\n") != std::string::npos) {
@@ -164,12 +162,10 @@ void	Server::completeRegistration(int pos)
 		delete _clients[pos - 1];
 		_pollfdClients.erase(_pollfdClients.begin() + pos);
 		_clients.erase(_clients.begin() + pos - 1);
-		std::cout << "Client n" << pos << " disconnected" << std::endl;
 	}
 	// Message to receive
 	else {
 		buf[recvd] = '\0';
-		std::cout << "client n" << pos << ": " << buf << std::endl;
 		
 		_clients[pos - 1]->addBufmsg(buf);
 		if ((_clients[pos - 1]->getUser().empty()

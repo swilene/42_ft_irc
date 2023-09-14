@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 12:03:00 by saguesse          #+#    #+#             */
-/*   Updated: 2023/09/12 15:36:36 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/09/14 17:47:01 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,6 @@ void Messages::sendRPL(Client *client)
 	std::map<std::string, std::vector<Client *> >::iterator	rpl = _RPL.begin();
 	
 	send(client->getFd(), rpl->first.c_str(), rpl->first.size(), 0);
-
-	std::cout << " SENDING [" << rpl->first.substr(0, rpl->first.size() - 2) << "\\r\\n] TO [" << client->getNick() << "]" << std::endl << std::endl; 
 
 	rpl->second.erase(rpl->second.begin());
 	if (rpl->second.size() == 0)
