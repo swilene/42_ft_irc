@@ -58,7 +58,6 @@ void	Server::mainLoop()
 	_pollfdServer.fd = _listener;
 	_pollfdServer.events = POLLIN;
 	_pollfdClients.push_back(_pollfdServer);
-	// int pollres = 0;
 
 	while (exitServer == false) {
 		if (poll(_pollfdClients.data(), _pollfdClients.size(), -1) < 0 && !exitServer)
