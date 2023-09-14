@@ -6,7 +6,7 @@
 /*   By: saguesse <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 12:08:18 by saguesse          #+#    #+#             */
-/*   Updated: 2023/09/13 16:28:06 by saguesse         ###   ########.fr       */
+/*   Updated: 2023/09/14 17:23:41 by saguesse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,35 +22,30 @@
 #include <vector>
 #include <map>
 
-#include <limits>
-
 #include <cstdlib>
-#include <cstdio>
 #include <ctime>
-#include <cctype>
 #include <sys/types.h>
 #include <sys/socket.h>
 
+
+// RPL
 #define RPL_WELCOME(nick, user) (":127.0.0.1 001 " + nick + " Welcome to the Internet Relay Network " + nick + "!" + user + "@127.0.0.1\r\n") 
 #define RPL_YOURHOST(nick, server) (":127.0.0.1 002 " + nick + " Your host is " + server + ", running version 1.0\r\n")
 #define RPL_CREATED(nick, date) (":127.0.0.1 003 " + nick + " This server was created " + date + "\r\n")
 #define RPL_MYINFO(nick) (":127.0.0.1 004 " + nick + " 127.0.0.1 ft_irc 1.0 aAbcCdefFghHiIjkKmnoOPrRsSwxXy itlko\r\n")
+#define RPL_UMODEIS(nick) (":127.0.0.1 221 " + nick + " +i \r\n")
+#define RPL_WHOISUSER(nick, nick2, user, realname) (":127.0.0.1 311 " + nick + " " + nick2 + " " + user + " localhost * :" + realname + "\r\n")
 #define RPL_ENDOFWHO(nick, channel) (":127.0.0.1 315 " + nick + " " channel + " :End of /WHO list.\r\n")
+#define RPL_CHANNELMODEIS(nick, channel, mode) (":127.0.0.1 324 " + nick + " " + channel + " " + mode + "\r\n")
+#define RPL_NOTOPIC(nick, chan) (":127.0.0.1 331 " + nick + " #" + chan + " :No topic is set\r\n")
+#define RPL_TOPIC(nick, chan, topic) (":127.0.0.1 332 " + nick + " #" + chan + " :" + topic + "\r\n")
+#define RPL_INVITING(nick, nick2, chan) (":127.0.0.1 341 " + nick + " " + nick2 + " #" + chan + "\r\n")
+#define RPL_ENDOFNAMES(nick, chan) (":127.0.0.1 366 " + nick + " #" + chan + " :End of NAMES list\r\n")
 #define RPL_ENDOFBANLIST(nick, channel) (":127.0.0.1 368 " + nick + " " + channel + " :End of channel ban list\r\n")
-#define PONG(server) ("PONG " + server + "\r\n")
-#define NICK(nick, user, newnick) (":" + nick + "!" + user + "@127.0.0.1 NICK " + newnick + "\r\n")
-#define MODE(nick, user, channel, mode) (":" + nick + "!" + user + "@127.0.0.1 MODE " + channel + " " + mode + "\r\n")
-#define JOIN(nick, user, chan) (":" + nick + "!" + user + "@127.0.0.1 JOIN #" + chan + "\r\n")
-#define PART(nick, user, chan, partmsg) (":" + nick + "!" + user + "@127.0.0.1 PART #" + chan + partmsg)
-#define PRIVMSG(nick, msg) (":" + nick + " " + msg)
-#define NOTICE(nick, user, msg) (":" + nick + "!~" + user + "@localhost " + msg)
-#define TOPIC(nick, user, chan, topic) (":" + nick + "!" + user + "@127.0.0.1 TOPIC #" + chan + topic)
-#define INVITE(nick, user, nick2, chan) (":" + nick + "!" + user + "@127.0.0.1 INVITE " + nick2 + " #" + chan + "\r\n")
-#define KICK(nick, user, nick2, chan, comment) (":" + nick + "!" + user + "@127.0.0.1 KICK #" + chan + " " + nick2 + " :" + comment + "\r\n")
-#define QUIT(nick, user, quitMsg) (":" + nick + "!" + user + "@127.0.0.1 QUIT" + quitMsg)
+#define RPL_YOUREOPER(nick) (":127.0.0.1 381 " + nick + " :You are now an IRC operator\r\n")
 
-#define BAD_MODE(c) ("Unknown mode character " + c + "\r\n")
 
+// ERR
 #define ERR_NOSUCHNICK(target, nick) ("401 127.0.0.1 " + target + " " + nick + " :No such nick/channel\r\n")
 #define ERR_NOSUCHCHANNEL(nick, channel) (":127.0.0.1 403 " + nick + " " + channel + "\r\n")
 #define ERR_CANNOTSENDTOCHAN(nick, chan) (":127.0.0.1 404 " + nick + " " + chan + " :Cannot send to channel\r\n")
@@ -68,14 +63,21 @@
 #define ERR_CHANOPRIVSNEEDED(nick, chan) (":127.0.0.1 482 " + nick + " #" + chan + " :You're not channel operator\r\n")
 #define ERR_NOOPERHOST(nick) (":127.0.0.1 491 " + nick + " :No Oper block for your host\r\n")
 
-#define RPL_UMODEIS(nick) (":127.0.0.1 221 " + nick + " +i \r\n")
-#define RPL_WHOISUSER(nick, nick2, user, realname) (":127.0.0.1 311 " + nick + " " + nick2 + " " + user + " localhost * :" + realname + "\r\n")
-#define RPL_CHANNELMODEIS(nick, channel, mode) (":127.0.0.1 324 " + nick + " " + channel + " " + mode + "\r\n")
-#define RPL_NOTOPIC(nick, chan) (":127.0.0.1 331 " + nick + " #" + chan + " :No topic is set\r\n")
-#define RPL_TOPIC(nick, chan, topic) (":127.0.0.1 332 " + nick + " #" + chan + " :" + topic + "\r\n")
-#define RPL_ENDOFNAMES(nick, chan) (":127.0.0.1 366 " + nick + " #" + chan + " :End of NAMES list\r\n")
-#define RPL_INVITING(nick, nick2, chan) (":127.0.0.1 341 " + nick + " " + nick2 + " #" + chan + "\r\n")
-#define RPL_YOUREOPER(nick) (":127.0.0.1 368 " + nick + " :You are now an IRC operator\r\n")
+// OTHERS
+#define PONG(server) ("PONG " + server + "\r\n")
+#define NICK(nick, user, newnick) (":" + nick + "!" + user + "@127.0.0.1 NICK " + newnick + "\r\n")
+#define MODE(nick, user, channel, mode) (":" + nick + "!" + user + "@127.0.0.1 MODE " + channel + " " + mode + "\r\n")
+#define JOIN(nick, user, chan) (":" + nick + "!" + user + "@127.0.0.1 JOIN #" + chan + "\r\n")
+#define PART(nick, user, chan, partmsg) (":" + nick + "!" + user + "@127.0.0.1 PART #" + chan + partmsg)
+#define PRIVMSG(nick, msg) (":" + nick + " " + msg)
+#define NOTICE(nick, user, msg) (":" + nick + "!~" + user + "@localhost " + msg)
+#define TOPIC(nick, user, chan, topic) (":" + nick + "!" + user + "@127.0.0.1 TOPIC #" + chan + topic)
+#define INVITE(nick, user, nick2, chan) (":" + nick + "!" + user + "@127.0.0.1 INVITE " + nick2 + " #" + chan + "\r\n")
+#define KICK(nick, user, nick2, chan, comment) (":" + nick + "!" + user + "@127.0.0.1 KICK #" + chan + " " + nick2 + " :" + comment + "\r\n")
+#define QUIT(nick, user, quitMsg) (":" + nick + "!" + user + "@127.0.0.1 QUIT" + quitMsg)
+
+#define BAD_MODE(c) ("Unknown mode character " + c + "\r\n")
+
 
 class Server;
 
