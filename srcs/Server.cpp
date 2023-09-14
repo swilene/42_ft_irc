@@ -20,6 +20,7 @@ Server::~Server()
 {
 	for (std::vector<Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 		delete *it;
+	close(_listener);
 }
 
 std::string Server::getMsgReceived() const { return(_msgReceived); }
@@ -61,6 +62,8 @@ void	Server::mainLoop()
 	while (exitServer == false) {
 		if (poll(_pollfdClients.data(), _pollfdClients.size(), -1) < 0 && !exitServer)
 			throw pollException();
+		if (exitServer)
+			return;
 		//if reply to send
 		if (!_msg.getRPL().empty()) {
 			for (size_t i = 1; i < _pollfdClients.size(); i++) {
