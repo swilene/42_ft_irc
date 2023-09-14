@@ -56,82 +56,60 @@ void Messages::sendRPL(Client *client)
 		_RPL.erase(rpl);
 }
 
-void Messages::registerMsg(Client *client, std::vector<Client *> clients, std::vector<pollfd> newpollfd, std::string password)
+void	Messages::registerMsg(std::string msg, Client *client, std::vector<Client *> clients, std::string password)
 {
-	char		buf[256];
-	std::string fullbuf;
+	std::string nick = msg;
 
-	while (fullbuf.find("USER", 0) == std::string::npos) {
-		ssize_t recvd = recv(client->getFd(), buf, sizeof(buf), 0);
-		if (recvd <= 0) {
-			std::cout << "Error recv()" << std::endl;
-			return ;
+	if (client->getUser().empty()) {
+		nick = nick.substr(nick.find("\r\nNICK ") + 7, std::string::npos);
+		nick = nick.substr(0, nick.find("\r\n"));
+
+		std::string user = msg;
+		user = user.substr(user.find("\r\nUSER ") + 7, std::string::npos);
+		user = user.substr(0, user.find(" ", 1));
+		client->setUser(user);
+
+		std::string realname = msg;
+		realname = realname.substr(realname.find("\r\nUSER ") + 7, std::string::npos);
+		realname = realname.substr(realname.find(" :") + 2, std::string::npos);
+		realname = realname.substr(0, realname.find("\r\n"));
+		client->setRealname(realname);
+
+		// Check password
+		if (msg.find("PASS ") == std::string::npos) {
+			std::string rpl = ERR_PASSWDMISMATCH(nick);
+			rpl += "ERROR :Closing Link: 127.0.0.1 (Bad Password)\r\n";
+
+			_RPL[rpl].push_back(client);
+			client->setDelete();
+			return;
 		}
-		buf[recvd] = '\0';
-		fullbuf += buf;
+
+		std::string pass = msg.substr(msg.find("PASS") + 5, std::string::npos);
+		pass = pass.substr(0, pass.find("\r\n"));
+
+		if (pass != password) {
+			std::string rpl = ERR_PASSWDMISMATCH(nick);
+			rpl += "ERROR :Closing Link: 127.0.0.1 (Bad Password)\r\n";
+
+			_RPL[rpl].push_back(client);
+			client->setDelete();
+			return;
+		}
 	}
-
-	std::string nick = fullbuf;
-	nick = nick.substr(nick.find("\r\nNICK ") + 7, std::string::npos);
-	nick = nick.substr(0, nick.find("\r\n"));
-
-	// Check for password
-	if (fullbuf.find("PASS ") == std::string::npos) {
-		std::string rpl = ERR_PASSWDMISMATCH(nick);
-		rpl += "ERROR :Closing Link: 127.0.0.1 (Bad Password)\r\n";  // mettre ?
-
-		do { poll(newpollfd.data(), newpollfd.size(), -1); } while (!(newpollfd[0].revents & POLLOUT));
-		send(client->getFd(), rpl.c_str(), rpl.size(), 0);
-		return;
-	}
-
-	std::string pass = fullbuf.substr(fullbuf.find("PASS") + 5, std::string::npos);
-	pass = pass.substr(0, pass.find("\r\n"));
-
-	if (pass != password) {  // case sensitive ??
-		std::string rpl = ERR_PASSWDMISMATCH(nick);
-		rpl += "ERROR :Closing Link: 127.0.0.1 (Bad Password)\r\n";  // mettre ?
-
-		do { poll(newpollfd.data(), newpollfd.size(), -1); } while (!(newpollfd[0].revents & POLLOUT));
-		send(client->getFd(), rpl.c_str(), rpl.size(), 0);
-		return;
+	else {
+		nick = nick.substr(nick.find("NICK ") + 5, std::string::npos);
+		nick = nick.substr(0, nick.find("\r\n"));
 	}
 
 	// Check if nick already taken
-	size_t i;
-	do {
-		for (i = 0; i < clients.size(); i++) {
-			if (lowercase(nick) == lowercase(clients[i]->getNick())) {
-				std::string rpl = ERR_NICKNAMEINUSE(nick, nick);
-
-				do { poll(newpollfd.data(), newpollfd.size(), -1); } while (!(newpollfd[0].revents & POLLOUT));
-				send(client->getFd(), rpl.c_str(), rpl.size(), 0);
-
-				do { poll(newpollfd.data(), newpollfd.size(), -1); } while (!(newpollfd[0].revents & POLLIN));
-				ssize_t recvd = recv(client->getFd(), buf, sizeof(buf), 0);
-				buf[recvd] = '\0';
-
-				nick = buf;
-				nick = nick.substr(nick.find("NICK ") + 5, std::string::npos);
-				nick = nick.substr(0, nick.find("\r\n"));
-
-				break;
-			}
+	for (size_t i = 0; i < clients.size(); i++) {
+		if (lowercase(nick) == lowercase(clients[i]->getNick())) {
+			_RPL[ERR_NICKNAMEINUSE(nick, nick)].push_back(client);
+			return ;
 		}
-	} while (i < clients.size());
-
+	}
 	client->setNick(nick);
-
-	std::string user = fullbuf;
-	user = user.substr(user.find("\r\nUSER ") + 7, std::string::npos);
-	user = user.substr(0, user.find(" ", 1));
-	client->setUser(user);
-
-	std::string realname = fullbuf;
-	realname = realname.substr(realname.find("\r\nUSER ") + 7, std::string::npos);
-	realname = realname.substr(realname.find(" :") + 2, std::string::npos);
-	realname = realname.substr(0, realname.find("\r\n"));
-	client->setRealname(realname);
 
 	std::string rpl = RPL_WELCOME(client->getNick(), client->getUser());
 	rpl += RPL_YOURHOST(client->getNick(), _servername);

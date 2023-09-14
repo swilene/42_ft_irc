@@ -27,6 +27,7 @@ class Client
 		std::string _bufMsg;
 		bool		_registered;
 		bool		_userOperator;
+		bool		_delete;
 
 	public:
 		Client(int fd);
@@ -39,6 +40,7 @@ class Client
 		void setHost(std::string host);
 		void setRegistered();
 		void setUserOperator();
+		void setDelete();
 
 		// getter
 		std::string getUser() const;
@@ -47,9 +49,10 @@ class Client
 		std::string getHost() const;
 		int 		getFd() const;
 		bool		getRegistered() const;
-	  bool		getUserOperator() const;
-    std::string getBufmsg() const;
+		bool		getUserOperator() const;
+		bool		getDelete() const;
 
+		std::string getBufmsg() const;
 		void addBufmsg(std::string buf);
 		void rmBufmsg();
 

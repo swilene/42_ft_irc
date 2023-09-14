@@ -24,7 +24,7 @@ Server::~Server()
 
 std::string Server::getMsgReceived() const { return(_msgReceived); }
 
-void Server::getListenerSocket()
+void	Server::getListenerSocket()
 {
 	int yes = 1;
 
@@ -52,7 +52,7 @@ void Server::getListenerSocket()
 	freeaddrinfo(ai);
 }
 
-void Server::mainLoop()
+void	Server::mainLoop()
 {
 	_pollfdServer.fd = _listener;
 	_pollfdServer.events = POLLIN;
@@ -66,6 +66,8 @@ void Server::mainLoop()
 			for (size_t i = 1; i < _pollfdClients.size(); i++) {
 				if (_msg.getRPL().begin()->second[0] == _clients[i - 1] && _pollfdClients[i].revents & POLLOUT) {
 					_msg.sendRPL(_clients[i - 1]);
+					if (_clients[i - 1]->getDelete())
+						deleteClient(i - 1);
 					break;
 				}
 			}
@@ -74,14 +76,19 @@ void Server::mainLoop()
 			//run through the existing connections looking for data to read
 			for (size_t i = 0; i < _pollfdClients.size(); i++) {
 				if (_pollfdClients[i].revents & POLLIN) {
-					if (_pollfdClients[i].fd == _listener)
-						newClient();
-					else {
-						clientAlreadyExists(i);
-						if (!_msgReceived.empty()) {
+					//if listener connection
+					if (_pollfdClients[i].fd == _listener) { newClient(); }
+					//if unregistered client
+					else if (!_clients[i - 1]->getRegistered()) { completeRegistration(i); }
+					//if registered client
+					else { clientAlreadyExists(i); }
+
+					if (!_msgReceived.empty()) {
+						if (_clients[i - 1]->getRegistered())
 							_msg.parseMsg(_msgReceived, _clients[i - 1], _clients, _channels);
-							_msgReceived.clear();
-						}
+						else
+							_msg.registerMsg(_msgReceived, _clients[i - 1], _clients, _password);
+						_msgReceived.clear();
 					}
 					break;
 				}
@@ -91,12 +98,10 @@ void Server::mainLoop()
 				}
 			}
 		}
-		_pollfdClients.insert(_pollfdClients.end(), _pollfdNew.begin(), _pollfdNew.end());
-		_pollfdNew.clear();
 	}
 }
 
-void Server::newClient()
+void	Server::newClient()
 {
 	_addrlen = sizeof _remoteaddr;
 	_newfd = accept(_listener, (sockaddr *)&_remoteaddr, &_addrlen);
@@ -106,22 +111,13 @@ void Server::newClient()
 	pollfd newPollfd;
 	newPollfd.fd = _newfd;
 	newPollfd.events = POLLIN | POLLOUT;
-	_pollfdNew.push_back(newPollfd);
+	_pollfdClients.push_back(newPollfd);
 	
 	Client *newClient = new Client(_newfd);
-	_msg.registerMsg(newClient, _clients, _pollfdNew, _password);  // register direct ?
-	
-	if (newClient->getRegistered()) {
-		_clients.push_back(newClient);
-		std::cout << "pollserver: new connection on socket " << _newfd << std::endl;
-	}
-	else {
-		delete newClient;
-		_pollfdNew.pop_back();
-	}
+	_clients.push_back(newClient);
 }
 
-void Server::clientAlreadyExists(int pos)
+void	Server::clientAlreadyExists(int pos)
 {
 	char buf[256];
 	int recvd = recv(_pollfdClients[pos].fd, buf, sizeof buf, 0);
@@ -151,7 +147,43 @@ void Server::clientAlreadyExists(int pos)
 	}
 }
 
-void Server::handlePollerr(int pos)
+void	Server::completeRegistration(int pos)
+{
+	char buf[256];
+	int recvd = recv(_pollfdClients[pos].fd, buf, sizeof buf, 0);
+
+	if (recvd < 0)
+		std::cout << "Error recv()" << std::endl;
+	else if (recvd == 0) {  // == disconnected
+		delete _clients[pos - 1];
+		_pollfdClients.erase(_pollfdClients.begin() + pos);
+		_clients.erase(_clients.begin() + pos - 1);
+		std::cout << "Client n" << pos << " disconnected" << std::endl;
+	}
+	else {
+		buf[recvd] = '\0';
+		std::cout << "client n" << pos << ": " << buf << std::endl;
+		
+		_clients[pos - 1]->addBufmsg(buf);
+		if ((_clients[pos - 1]->getUser().empty()
+			&& _clients[pos - 1]->getBufmsg().find("\r\nNICK ") != std::string::npos
+			&& _clients[pos - 1]->getBufmsg().find("\r\nUSER ") != std::string::npos)
+			|| (!_clients[pos - 1]->getUser().empty()
+			&& _clients[pos - 1]->getBufmsg().find("\r\n") != std::string::npos)) {
+			_msgReceived = _clients[pos - 1]->getBufmsg();
+			_clients[pos - 1]->rmBufmsg();
+		}
+	}
+}
+
+void	Server::deleteClient(int pos)
+{
+	delete _clients[pos];
+	_clients.erase(_clients.begin() + pos);
+	_pollfdClients.erase(_pollfdClients.begin() + pos + 1);
+}
+
+void	Server::handlePollerr(int pos)
 {
 	if (pos == 0)
 		exitServer = true;
