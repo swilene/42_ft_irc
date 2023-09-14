@@ -2,6 +2,7 @@
 # define CHANNEL_HPP
 
 # include "Client.hpp"
+
 # include <string>
 # include <vector>
 
