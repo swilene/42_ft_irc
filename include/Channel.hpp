@@ -30,7 +30,7 @@ class Channel {
 		void		setInviteOnly(bool mode);
 		bool		getTopicRights() const;
 		void		setTopicRights(bool mode);
-		std::string	getPassword() const;
+		std::string	& getPassword();
 		void		setPassword(std::string password);
 		int			getUserLimit() const;
 		void		setUserLimit(int limit);

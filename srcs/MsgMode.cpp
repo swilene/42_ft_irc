@@ -61,8 +61,10 @@ void modePassword(Channel &channel, std::vector<std::string> args, size_t &j, st
 
 void modeLimit(Client *client, Channel &channel, std::vector<std::string> args, size_t &j, std::string &newMode, bool set, std::string &rpl)
 {
-	if (!set)
+	if (!set) {
 		channel.setUserLimit(0);
+		newMode += "l";
+	}
 	else if (set && j < args.size()) {
 		std::string limit;
 		size_t i = 0;
@@ -146,11 +148,8 @@ std::string parsingModes(Channel &channel, std::string mode, std::string &rpl, s
 			modeInviteOnly(channel, set, newMode);
 		else if (modes[i] == 't')
 			modeTopic(channel, set, newMode);
-		else if (mode[i] == 'l') {
-			std::cout << "debug: j avant = " << j << std::endl;
+		else if (mode[i] == 'l')
 			modeLimit(client, channel, args, j, newMode, set, rpl);
-			std::cout << "debug: j apres = " << j << std::endl;
-		}
 		else if (mode[i] == 'k')
 			modePassword(channel, args, j, newMode, set);
 		else if (mode[i] == 'o')
@@ -204,9 +203,15 @@ std::string takeChannelModes(Channel &channel)
 		mode += "t";
 	if (!channel.getPassword().empty())
 		mode += "k";
+	if (channel.getUserLimit())
+		mode += "l";
+	if (!channel.getPassword().empty())
+		mode += " " + channel.getPassword();
 	if (channel.getUserLimit()) {
-		mode += "l ";
-		mode += channel.getUserLimit();
+		mode += " ";
+		char nb[11];
+		std::sprintf(nb, "%d", channel.getUserLimit());
+		mode += nb;
 	}
 	return (mode);
 }
