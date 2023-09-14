@@ -16,6 +16,14 @@ void	Messages::quitMsg(Client *client, std::string msg, std::vector<Client *> cl
 			break ;
 		}
 	}
+	// remove unregistered clients
+	for (size_t i = 0; i < _RPL[rpl].size(); i++) {
+		if (_RPL[rpl][i]->getRegistered() == false) {
+			_RPL[rpl].erase(_RPL[rpl].begin() + i);
+			i--;
+		}
+	}
+
 	if (_RPL[rpl].size() == 0)
 		_RPL.clear();
 }

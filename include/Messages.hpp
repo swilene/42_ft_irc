@@ -74,7 +74,7 @@
 #define RPL_NOTOPIC(nick, chan) (":127.0.0.1 331 " + nick + " #" + chan + " :No topic is set\r\n")
 #define RPL_TOPIC(nick, chan, topic) (":127.0.0.1 332 " + nick + " #" + chan + " :" + topic + "\r\n")
 #define RPL_ENDOFNAMES(nick, chan) (":127.0.0.1 366 " + nick + " #" + chan + " :End of NAMES list\r\n")
-#define RPL_INVITING(nick, nick2, chan) (":127.0.0.1 341 " + nick + " #" + chan + " " + nick2 + "\r\n")
+#define RPL_INVITING(nick, nick2, chan) (":127.0.0.1 341 " + nick + " " + nick2 + " #" + chan + "\r\n")
 #define RPL_YOUREOPER(nick) (":127.0.0.1 368 " + nick + " :You are now an IRC operator\r\n")
 
 class Server;
@@ -96,7 +96,7 @@ class Messages
 
 		void	parseMsg(std::string msg, Client *client, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	sendRPL(Client *client);
-		void	registerMsg(Client *client, std::vector<Client *> clients, std::vector<pollfd> newpollfd, std::string password);
+		void	registerMsg(std::string msg, Client *client, std::vector<Client *> clients, std::string password);
 		void	pingMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	modeMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);
 		void	joinMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels);

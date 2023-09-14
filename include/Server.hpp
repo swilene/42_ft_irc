@@ -45,7 +45,6 @@ class Server
 
 		std::vector<Client *>	_clients;
 		std::vector<pollfd>		_pollfdClients;
-		std::vector<pollfd>		_pollfdNew;
 		std::vector<Channel>	_channels;
 		pollfd _pollfdServer;
 
@@ -67,6 +66,8 @@ class Server
 		void mainLoop();
 		void newClient();
 		void clientAlreadyExists(int pos);
+		void completeRegistration(int pos);
+		void deleteClient(int pos);
 		void handlePollerr(int pos);
 
 		class getaddrinfoException : public std::exception
