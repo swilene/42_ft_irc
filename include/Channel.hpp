@@ -15,16 +15,16 @@ class Channel {
 		bool			_topicRights; 	// -t
 		std::string		_password;    	// -k
 		int				_userLimit;   	// -l
-		// mettre les *Client
-		std::vector<Client *>	_operators; // -o
-		std::vector<Client *>	_members;   //save nickname
+
+		std::vector<Client *>	_operators;
+		std::vector<Client *>	_members;
 		std::vector<Client *>	_invited;
 
 	public :
-		Channel(std::string name, Client *creator);  //envoyer password?
+		Channel(std::string name, Client *creator);
 		~Channel();
 
-		std::string	getName() const;  //pas de setter
+		std::string	getName() const;
 		std::string	getTopic() const;
 		void		setTopic(std::string topic);
 		bool		getInviteOnly() const;
@@ -53,10 +53,3 @@ class Channel {
 };
 
 #endif
-
-// MODES
-// -i  :  bool
-// -t  :  bool
-// -k  :  string
-// -o  :  vecteur de string (membres)
-// -l  :  int (-1 if no limit)

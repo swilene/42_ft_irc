@@ -16,7 +16,7 @@
 #include <string>
 
 #include <cctype>
-#include <unistd.h> //close
+#include <unistd.h>
 #include <poll.h>
 
 class Client

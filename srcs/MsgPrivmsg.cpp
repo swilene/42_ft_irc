@@ -2,7 +2,7 @@
 
 void	Messages::privMsg(Client *client, std::string msg, std::vector<Client *> clients, std::vector<Channel> &channels)
 {
-	if (msg[8] == '#') {  // == channel msg
+	if (msg[8] == '#') {
 		std::string chan = msg.substr(9, std::string::npos);
 		chan = lowercase(chan.substr(0, chan.find(" ", 0)));
 
@@ -25,9 +25,9 @@ void	Messages::privMsg(Client *client, std::string msg, std::vector<Client *> cl
 			}
 		}
 		if (_RPL[msg].size() == 0)
-			_RPL.clear();  // clear toute la map car pas plusieurs cmd normalement
+			_RPL.clear();
 	}
-	else {  // == dm
+	else {
 		std::string target = msg.substr(8, msg.find(' ', 9) - 8);
 
 		for (size_t i = 0; i < clients.size(); i++) {

@@ -21,7 +21,8 @@ void	Messages::topicMsg(Client *client, std::string msg, std::vector<Client *> c
 
 	for (size_t i = 0; i < channels.size(); i++) {
 		if (channels[i].getName() == lowercase(chan)) {
-			if (!topic.empty()) {  //== want to change topic
+			// Change topic
+			if (!topic.empty()) {
 				if (channels[i].isMember(client)) {
 					if (channels[i].isOperator(client) || !channels[i].getTopicRights()) {
 						_RPL[TOPIC(client->getNick(), client->getUser(), chan, topic)] = channels[i].getMembers();
@@ -32,7 +33,8 @@ void	Messages::topicMsg(Client *client, std::string msg, std::vector<Client *> c
 				}
 				_RPL[ERR_NOTONCHANNEL(client->getNick(), chan)].push_back(client); return;
 			}
-			else {  	//==want to display topic
+			// Display topic
+			else {
 				if (!channels[i].getTopic().empty()) {
 					_RPL[RPL_TOPIC(client->getNick(), channels[i].getName(), channels[i].getTopic())].push_back(client); return;
 				}
